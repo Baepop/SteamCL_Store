@@ -3,193 +3,238 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SteamCL Store</title>
+<title>SteamCL Store — Juegos para Steam</title>
+<meta name="description" content="Juegos importados directo a tu biblioteca de Steam. 100% garantizados y permanentes.">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --neon:#00d4ff; --neon-glow:0 0 8px #00d4ff,0 0 24px #00d4ff55;
-    --dark:#060a10; --dark2:#0c1420; --dark3:#111c2e; --card:#0e1928;
-    --border:#1a3050; --text:#c8dff0; --text-dim:#5a7a99;
-    --accent:#ff4d6d; --green:#00ff88; --orange:#ff9500; --red:#ff4d6d; --cupo:#bf5af2;
-    --bg:var(--dark); --surface:var(--card); --surface2:var(--dark3);
-  }
-  [data-theme="light"] {
-    --bg:#f0f4f8; --surface:#ffffff; --surface2:#e8edf3;
-    --border:#c8d8e8; --text:#1a2a3a; --text-dim:#6a8aaa; --dark2:#ffffff; --dark3:#e8edf3; --card:#ffffff;
-  }
-  * { margin:0; padding:0; box-sizing:border-box; transition:background-color 0.3s,color 0.3s,border-color 0.3s; }
-  body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; min-height:100vh; overflow-x:hidden; }
-  [data-theme="dark"] body::before { content:''; position:fixed; inset:0; background-image:linear-gradient(rgba(0,212,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.025) 1px,transparent 1px); background-size:40px 40px; pointer-events:none; z-index:0; }
-  .orb { position:fixed; border-radius:50%; filter:blur(80px); pointer-events:none; z-index:0; }
-  .orb1 { width:400px; height:400px; background:rgba(0,212,255,0.06); top:-100px; left:-100px; }
-  .orb2 { width:300px; height:300px; background:rgba(0,100,255,0.05); bottom:200px; right:-50px; }
-  [data-theme="light"] .orb { display:none; }
+:root {
+  --neon:#00d4ff; --neon-glow:0 0 8px #00d4ff,0 0 24px #00d4ff55;
+  --dark:#060a10; --dark2:#0c1420; --dark3:#111c2e; --card:#0e1928;
+  --border:#1a3050; --text:#c8dff0; --text-dim:#5a7a99;
+  --accent:#ff4d6d; --green:#00ff88; --orange:#ff9500; --red:#ff4d6d; --cupo:#bf5af2;
+  --bg:var(--dark); --surface:var(--card); --surface2:var(--dark3);
+}
+[data-theme="light"] {
+  --bg:#f0f4f8; --surface:#ffffff; --surface2:#e8edf3;
+  --border:#c8d8e8; --text:#1a2a3a; --text-dim:#6a8aaa;
+  --dark2:#ffffff; --dark3:#e8edf3; --card:#ffffff;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;transition:background 0.3s,color 0.3s;}
+[data-theme="dark"] body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+.orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0;}
+.orb1{width:400px;height:400px;background:rgba(0,212,255,0.06);top:-100px;left:-100px;}
+.orb2{width:300px;height:300px;background:rgba(0,100,255,0.05);bottom:200px;right:-50px;}
+[data-theme="light"] .orb{display:none;}
 
-  /* HEADER */
-  header { position:sticky; top:0; z-index:50; display:flex; align-items:center; justify-content:space-between; padding:14px 32px; border-bottom:1px solid var(--border); background:rgba(6,10,16,0.95); backdrop-filter:blur(20px); gap:12px; flex-wrap:wrap; }
-  [data-theme="light"] header { background:rgba(240,244,248,0.97); }
-  .logo-area { display:flex; align-items:center; gap:12px; }
-  .logo-circle { width:42px; height:42px; border-radius:50%; border:1.5px solid var(--neon); box-shadow:var(--neon-glow); background:var(--surface2); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-  .logo-text { font-family:'Orbitron',monospace; font-weight:900; font-size:1.05rem; color:var(--text); letter-spacing:2px; }
-  .logo-text span { color:var(--neon); }
-  .logo-sub { font-family:'Rajdhani',sans-serif; font-size:0.68rem; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; }
-  .header-right { display:flex; align-items:center; gap:10px; }
-  .theme-btn { background:var(--surface2); border:1px solid var(--border); color:var(--text-dim); width:36px; height:36px; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1rem; transition:all 0.2s; flex-shrink:0; }
-  .theme-btn:hover { border-color:var(--neon); color:var(--neon); }
-  .cart-btn { background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:9px 16px; border-radius:8px; font-family:'Rajdhani',sans-serif; font-weight:600; font-size:0.9rem; cursor:pointer; display:flex; align-items:center; gap:8px; transition:all 0.2s; letter-spacing:1px; white-space:nowrap; }
-  .cart-btn:hover { border-color:var(--neon); color:var(--neon); box-shadow:var(--neon-glow); }
-  .cart-count { background:var(--neon); color:#060a10; border-radius:50%; width:20px; height:20px; display:flex; align-items:center; justify-content:center; font-size:0.68rem; font-weight:900; font-family:'Orbitron',monospace; flex-shrink:0; }
+/* HEADER */
+header{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:14px 32px;border-bottom:1px solid var(--border);background:rgba(6,10,16,0.95);backdrop-filter:blur(20px);gap:12px;flex-wrap:wrap;}
+[data-theme="light"] header{background:rgba(240,244,248,0.97);}
+.logo-area{display:flex;align-items:center;gap:12px;}
+.logo-circle{width:42px;height:42px;border-radius:50%;border:1.5px solid var(--neon);box-shadow:var(--neon-glow);background:var(--surface2);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.logo-text{font-family:'Orbitron',monospace;font-weight:900;font-size:1.05rem;color:var(--text);letter-spacing:2px;}
+.logo-text span{color:var(--neon);}
+.logo-sub{font-family:'Rajdhani',sans-serif;font-size:0.68rem;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase;}
+.header-right{display:flex;align-items:center;gap:10px;}
+.icon-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);width:36px;height:36px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:all 0.2s;flex-shrink:0;}
+.icon-btn:hover{border-color:var(--neon);color:var(--neon);}
+.cart-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:9px 16px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all 0.2s;letter-spacing:1px;white-space:nowrap;}
+.cart-btn:hover{border-color:var(--neon);color:var(--neon);box-shadow:var(--neon-glow);}
+.cart-count{background:var(--neon);color:#060a10;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:0.68rem;font-weight:900;font-family:'Orbitron',monospace;flex-shrink:0;}
 
-  /* HERO */
-  .hero { position:relative; z-index:1; text-align:center; padding:50px 20px 20px; }
-  .hero-eyebrow { font-family:'Rajdhani',sans-serif; font-size:0.78rem; letter-spacing:5px; color:var(--neon); text-transform:uppercase; margin-bottom:14px; opacity:0; animation:fadeUp 0.6s 0.1s forwards; }
-  .hero h1 { font-family:'Orbitron',monospace; font-size:clamp(1.8rem,5vw,3rem); font-weight:900; color:var(--text); line-height:1.1; margin-bottom:14px; opacity:0; animation:fadeUp 0.6s 0.2s forwards; }
-  .hero h1 span { color:var(--neon); text-shadow:var(--neon-glow); }
-  .hero p { font-size:0.95rem; color:var(--text-dim); max-width:480px; margin:0 auto 24px; opacity:0; animation:fadeUp 0.6s 0.3s forwards; line-height:1.6; }
+/* HERO */
+.hero{position:relative;z-index:1;text-align:center;padding:50px 20px 20px;}
+.hero-eyebrow{font-family:'Rajdhani',sans-serif;font-size:0.78rem;letter-spacing:5px;color:var(--neon);text-transform:uppercase;margin-bottom:14px;opacity:0;animation:fadeUp 0.6s 0.1s forwards;}
+.hero h1{font-family:'Orbitron',monospace;font-size:clamp(1.8rem,5vw,3rem);font-weight:900;color:var(--text);line-height:1.1;margin-bottom:14px;opacity:0;animation:fadeUp 0.6s 0.2s forwards;}
+.hero h1 span{color:var(--neon);text-shadow:var(--neon-glow);}
+.hero p{font-size:0.95rem;color:var(--text-dim);max-width:480px;margin:0 auto 28px;opacity:0;animation:fadeUp 0.6s 0.3s forwards;line-height:1.6;}
+.stats-bar{display:flex;justify-content:center;gap:32px;flex-wrap:wrap;margin-bottom:0;opacity:0;animation:fadeUp 0.6s 0.35s forwards;}
+.stat-item{text-align:center;}
+.stat-num{font-family:'Orbitron',monospace;font-size:1.6rem;font-weight:900;color:var(--neon);text-shadow:var(--neon-glow);line-height:1;}
+.stat-label{font-family:'Rajdhani',sans-serif;font-size:0.72rem;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase;margin-top:4px;}
 
-  /* STATS BAR */
-  .stats-bar { display:flex; justify-content:center; gap:32px; flex-wrap:wrap; margin-bottom:0; opacity:0; animation:fadeUp 0.6s 0.35s forwards; }
-  .stat-item { text-align:center; }
-  .stat-num { font-family:'Orbitron',monospace; font-size:1.6rem; font-weight:900; color:var(--neon); text-shadow:var(--neon-glow); line-height:1; }
-  .stat-label { font-family:'Rajdhani',sans-serif; font-size:0.72rem; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; margin-top:4px; }
+/* HOW IT WORKS */
+.how-section{position:relative;z-index:1;padding:44px 20px 0;max-width:900px;margin:0 auto;opacity:0;animation:fadeUp 0.6s 0.4s forwards;}
+.section-title{font-family:'Rajdhani',sans-serif;font-size:0.72rem;letter-spacing:4px;color:var(--text-dim);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:12px;}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+@media(max-width:640px){.steps-grid{grid-template-columns:repeat(2,1fr);}}
+.step-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;position:relative;overflow:hidden;transition:border-color 0.2s;}
+.step-card:hover{border-color:rgba(0,212,255,0.3);}
+.step-num{font-family:'Orbitron',monospace;font-size:2rem;font-weight:900;color:rgba(0,212,255,0.12);line-height:1;margin-bottom:8px;}
+.step-icon{font-size:1.4rem;margin-bottom:8px;}
+.step-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:0.95rem;color:var(--text);letter-spacing:1px;margin-bottom:6px;}
+.step-desc{font-size:0.78rem;color:var(--text-dim);line-height:1.5;}
+.step-active .step-num{color:rgba(0,212,255,0.3);}
+.step-active{border-color:rgba(0,212,255,0.4);background:rgba(0,212,255,0.04);}
 
-  /* SECTION */
-  .section-wrap { position:relative; z-index:1; padding:36px 20px 0; max-width:900px; margin:0 auto; opacity:0; animation:fadeUp 0.6s 0.4s forwards; }
-  .section-title { font-family:'Rajdhani',sans-serif; font-size:0.72rem; letter-spacing:4px; color:var(--text-dim); text-transform:uppercase; margin-bottom:14px; display:flex; align-items:center; gap:12px; }
-  .section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+/* STEPPER */
+.stepper-wrap{position:relative;z-index:1;padding:24px 20px 0;max-width:900px;margin:0 auto;}
+.stepper{display:flex;align-items:center;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 20px;overflow-x:auto;}
+.step-item{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.step-dot{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:0.7rem;font-weight:900;color:var(--text-dim);transition:all 0.3s;flex-shrink:0;}
+.step-dot.done{background:var(--neon);border-color:var(--neon);color:#060a10;box-shadow:0 0 10px rgba(0,212,255,0.4);}
+.step-dot.active{border-color:var(--neon);color:var(--neon);box-shadow:0 0 8px rgba(0,212,255,0.3);}
+.step-lbl{font-family:'Rajdhani',sans-serif;font-size:0.8rem;font-weight:600;color:var(--text-dim);letter-spacing:1px;white-space:nowrap;transition:color 0.3s;}
+.step-lbl.done,.step-lbl.active{color:var(--text);}
+.step-lbl.active{color:var(--neon);}
+.step-line{flex:1;height:1px;background:var(--border);min-width:16px;margin:0 4px;transition:background 0.3s;}
+.step-line.done{background:var(--neon);}
 
-  /* PACKS */
-  .packs-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
-  @media(max-width:560px){ .packs-grid { grid-template-columns:1fr; } }
-  .pack-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px; cursor:pointer; transition:all 0.25s; position:relative; overflow:hidden; }
-  .pack-card::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(0,212,255,0.06),transparent); opacity:0; transition:opacity 0.3s; }
-  .pack-card:hover::before,.pack-card.selected::before { opacity:1; }
-  .pack-card:hover,.pack-card.selected { border-color:var(--neon); box-shadow:0 0 20px rgba(0,212,255,0.15); transform:translateY(-2px); }
-  .pack-card.selected { background:rgba(0,212,255,0.07); }
-  .pack-popular { position:absolute; top:0; right:0; background:var(--neon); color:#060a10; font-family:'Orbitron',monospace; font-size:0.55rem; font-weight:900; padding:4px 10px; border-radius:0 12px 0 8px; letter-spacing:1px; }
-  .pack-check { position:absolute; top:10px; left:10px; width:20px; height:20px; border-radius:50%; background:var(--neon); display:none; align-items:center; justify-content:center; color:#060a10; font-size:0.65rem; font-weight:900; }
-  .pack-card.selected .pack-check { display:flex; }
-  .pack-games { font-family:'Orbitron',monospace; font-size:1.9rem; font-weight:900; color:var(--neon); line-height:1; }
-  .pack-label { font-family:'Rajdhani',sans-serif; font-size:0.82rem; color:var(--text-dim); letter-spacing:2px; text-transform:uppercase; margin-bottom:10px; }
-  .pack-price { font-family:'Rajdhani',sans-serif; font-size:1.4rem; font-weight:700; color:var(--text); }
-  .pack-bonus { font-size:0.72rem; color:var(--neon); margin-top:5px; font-family:'Rajdhani',sans-serif; letter-spacing:1px; }
+/* SECTION WRAP */
+.section-wrap{position:relative;z-index:1;padding:24px 20px 0;max-width:900px;margin:0 auto;}
 
-  /* GIFT SECTION */
-  .gift-section { position:relative; z-index:1; padding:24px 20px 0; max-width:900px; margin:0 auto; display:none; }
-  .gift-box { background:var(--surface); border:1px solid rgba(0,212,255,0.3); border-radius:12px; padding:20px; }
-  .gift-header { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
-  .gift-title { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:1rem; color:var(--neon); letter-spacing:2px; text-transform:uppercase; }
-  .gift-subtitle { font-size:0.82rem; color:var(--text-dim); font-family:'Rajdhani',sans-serif; }
-  .gift-options { display:flex; gap:10px; flex-wrap:wrap; }
-  .gift-option { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:10px 16px; font-family:'Rajdhani',sans-serif; font-size:0.9rem; font-weight:600; color:var(--text); cursor:pointer; transition:all 0.2s; display:flex; align-items:center; gap:8px; }
-  .gift-option:hover { border-color:var(--neon); color:var(--neon); }
-  .gift-option.active { border-color:var(--neon); color:var(--neon); background:rgba(0,212,255,0.08); }
-  .gift-chosen { margin-top:14px; padding:12px 16px; background:rgba(0,212,255,0.07); border:1px solid rgba(0,212,255,0.25); border-radius:8px; font-family:'Rajdhani',sans-serif; font-size:0.92rem; color:var(--text); display:none; }
-  .gift-chosen span { color:var(--neon); font-weight:700; }
-  .gift-rotate-btn { background:var(--surface2); border:1px solid var(--border); color:var(--text-dim); padding:8px 14px; border-radius:8px; font-family:'Rajdhani',sans-serif; font-size:0.85rem; font-weight:600; cursor:pointer; transition:all 0.2s; letter-spacing:1px; }
-  .gift-rotate-btn:hover { border-color:var(--neon); color:var(--neon); }
+/* PACKS */
+.packs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+@media(max-width:560px){.packs-grid{grid-template-columns:1fr;}}
+.pack-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;cursor:pointer;transition:all 0.25s;position:relative;overflow:hidden;}
+.pack-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,212,255,0.06),transparent);opacity:0;transition:opacity 0.3s;}
+.pack-card:hover::before,.pack-card.selected::before{opacity:1;}
+.pack-card:hover,.pack-card.selected{border-color:var(--neon);box-shadow:0 0 20px rgba(0,212,255,0.15);transform:translateY(-2px);}
+.pack-card.selected{background:rgba(0,212,255,0.07);}
+.pack-popular{position:absolute;top:0;right:0;background:var(--neon);color:#060a10;font-family:'Orbitron',monospace;font-size:0.5rem;font-weight:900;padding:4px 10px;border-radius:0 12px 0 8px;letter-spacing:1px;}
+.pack-check{position:absolute;top:10px;left:10px;width:20px;height:20px;border-radius:50%;background:var(--neon);display:none;align-items:center;justify-content:center;color:#060a10;font-size:0.65rem;font-weight:900;}
+.pack-card.selected .pack-check{display:flex;}
+.pack-games{font-family:'Orbitron',monospace;font-size:1.9rem;font-weight:900;color:var(--neon);line-height:1;}
+.pack-label{font-family:'Rajdhani',sans-serif;font-size:0.82rem;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;}
+.pack-price{font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700;color:var(--text);}
+.pack-bonus{font-size:0.72rem;color:var(--neon);margin-top:5px;font-family:'Rajdhani',sans-serif;letter-spacing:1px;}
+.scroll-to-catalog-btn{display:none;margin-top:16px;width:100%;padding:12px;background:var(--neon);color:#060a10;border:none;border-radius:8px;font-family:'Orbitron',monospace;font-weight:700;font-size:0.78rem;letter-spacing:2px;cursor:pointer;transition:all 0.2s;text-transform:uppercase;}
+.scroll-to-catalog-btn:hover{background:#fff;box-shadow:0 0 20px rgba(0,212,255,0.4);}
 
-  /* CATALOG */
-  .catalog-wrap { position:relative; z-index:1; padding:24px 20px 130px; max-width:900px; margin:0 auto; opacity:0; animation:fadeUp 0.6s 0.5s forwards; }
-  .controls { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; align-items:center; }
-  .search-input { flex:1; min-width:180px; background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:9px 16px; border-radius:8px; font-family:'Rajdhani',sans-serif; font-size:0.95rem; outline:none; transition:border-color 0.2s; letter-spacing:1px; }
-  .search-input:focus { border-color:var(--neon); }
-  .search-input::placeholder { color:var(--text-dim); }
-  .filter-bar { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:18px; }
-  .filter-btn { background:var(--surface2); border:1px solid var(--border); color:var(--text-dim); padding:5px 14px; border-radius:20px; font-family:'Rajdhani',sans-serif; font-size:0.85rem; font-weight:600; letter-spacing:1px; cursor:pointer; transition:all 0.2s; }
-  .filter-btn:hover,.filter-btn.active { border-color:var(--neon); color:var(--neon); background:rgba(0,212,255,0.08); }
-  .selection-bar { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:12px 16px; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; font-family:'Rajdhani',sans-serif; }
-  .sel-text { font-size:0.9rem; color:var(--text-dim); }
-  .sel-count { font-size:1.05rem; font-weight:700; color:var(--neon); }
-  .sel-max { color:var(--text-dim); }
-  .legend { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:16px; font-family:'Rajdhani',sans-serif; font-size:0.78rem; letter-spacing:1px; }
-  .legend-item { display:flex; align-items:center; gap:5px; color:var(--text-dim); }
-  .legend-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+/* FEATURED */
+.featured-section{position:relative;z-index:1;padding:24px 20px 0;max-width:900px;margin:0 auto;}
+.featured-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;}
 
-  /* GAMES */
-  .games-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:10px; }
-  .game-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; cursor:pointer; transition:all 0.2s; position:relative; overflow:hidden; user-select:none; display:flex; flex-direction:column; }
-  .game-card:hover:not(.unavailable):not(.cupo-card) { border-color:rgba(0,212,255,0.5); transform:translateY(-2px); }
-  .game-card.selected { border-color:var(--neon); background:rgba(0,212,255,0.07); box-shadow:0 0 14px rgba(0,212,255,0.12); }
-  .game-card.unavailable { opacity:0.3; cursor:not-allowed; filter:grayscale(0.7); }
-  .game-card.cupo-card { border-color:rgba(191,90,242,0.4); }
-  .game-card.cupo-card:hover { border-color:rgba(191,90,242,0.7); transform:translateY(-2px); }
-  .game-card.cupo-selected { border-color:var(--cupo); background:rgba(191,90,242,0.08); box-shadow:0 0 14px rgba(191,90,242,0.15); }
-  .game-img-wrap { width:100%; aspect-ratio:6/9; overflow:hidden; background:var(--surface2); position:relative; }
-  .game-img { width:100%; height:100%; object-fit:cover; transition:transform 0.3s; }
-  .game-card:hover:not(.unavailable) .game-img { transform:scale(1.05); }
-  .game-img-placeholder { width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-size:1.8rem; }
-  .game-selected-badge { position:absolute; top:6px; right:6px; width:22px; height:22px; background:var(--neon); border-radius:50%; display:none; align-items:center; justify-content:center; color:#060a10; font-size:0.7rem; font-weight:900; box-shadow:0 0 8px rgba(0,212,255,0.6); }
-  .game-card.selected .game-selected-badge { display:flex; }
-  .cupo-selected-badge { position:absolute; top:6px; right:6px; width:22px; height:22px; background:var(--cupo); border-radius:50%; display:none; align-items:center; justify-content:center; color:#fff; font-size:0.7rem; font-weight:900; }
-  .game-card.cupo-selected .cupo-selected-badge { display:flex; }
-  .avail-badge { position:absolute; top:6px; left:6px; padding:2px 7px; border-radius:4px; font-family:'Rajdhani',sans-serif; font-size:0.6rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; }
-  .badge-ok { background:rgba(0,255,136,0.2); color:var(--green); }
-  .badge-instalar { background:rgba(255,149,0,0.2); color:var(--orange); }
-  .badge-cupo { background:rgba(191,90,242,0.25); color:var(--cupo); }
-  .badge-no { background:rgba(255,77,109,0.15); color:var(--red); }
-  .game-info { padding:10px; flex:1; }
-  .game-name { font-family:'Rajdhani',sans-serif; font-weight:600; font-size:0.88rem; color:var(--text); line-height:1.3; margin-bottom:4px; }
-  .game-genre { font-size:0.68rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:1px; font-family:'Rajdhani',sans-serif; }
-  .cupo-add-btn { margin:6px 10px 10px; padding:6px; border-radius:6px; border:1px solid rgba(191,90,242,0.5); background:transparent; color:var(--cupo); font-family:'Rajdhani',sans-serif; font-size:0.8rem; font-weight:700; letter-spacing:1px; cursor:pointer; transition:all 0.2s; text-align:center; }
-  .cupo-add-btn:hover { background:rgba(191,90,242,0.1); border-color:var(--cupo); }
-  .cupo-add-btn.added { background:rgba(191,90,242,0.15); border-color:var(--cupo); color:#fff; }
+/* GIFT */
+.gift-section{position:relative;z-index:1;padding:24px 20px 0;max-width:900px;margin:0 auto;display:none;}
+.gift-box{background:var(--surface);border:1px solid rgba(0,212,255,0.3);border-radius:12px;padding:20px;}
+.gift-daily{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.gift-daily-img{width:60px;height:90px;object-fit:cover;border-radius:6px;border:1px solid var(--border);flex-shrink:0;}
+.gift-daily-img-placeholder{width:60px;height:90px;background:var(--surface2);border-radius:6px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;}
+.gift-daily-info{}
+.gift-daily-label{font-family:'Rajdhani',sans-serif;font-size:0.7rem;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase;margin-bottom:4px;}
+.gift-daily-name{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1.05rem;color:var(--neon);margin-bottom:4px;}
+.gift-daily-note{font-size:0.78rem;color:var(--text-dim);}
+.gift-tag{display:inline-block;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--neon);font-family:'Rajdhani',sans-serif;font-size:0.72rem;font-weight:700;letter-spacing:2px;padding:3px 10px;border-radius:20px;margin-bottom:8px;text-transform:uppercase;}
 
-  /* FAQ */
-  .faq-section { position:relative; z-index:1; padding:36px 20px 0; max-width:900px; margin:0 auto; }
-  .faq-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px; }
-  .faq-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px; transition:border-color 0.2s; }
-  .faq-card:hover { border-color:rgba(0,212,255,0.3); }
-  .faq-icon { font-size:1.4rem; margin-bottom:10px; }
-  .faq-q { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:1rem; color:var(--neon); letter-spacing:1px; margin-bottom:8px; }
-  .faq-a { font-size:0.85rem; color:var(--text-dim); line-height:1.6; }
+/* STICKY SEARCH */
+.sticky-search-bar{position:sticky;top:70px;z-index:40;background:rgba(6,10,16,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:10px 20px;display:none;transition:all 0.3s;}
+[data-theme="light"] .sticky-search-bar{background:rgba(240,244,248,0.97);}
+.sticky-search-inner{max-width:900px;margin:0 auto;display:flex;gap:10px;align-items:center;}
+.sticky-search-input{flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:0.95rem;outline:none;transition:border-color 0.2s;letter-spacing:1px;}
+.sticky-search-input:focus{border-color:var(--neon);}
+.sticky-search-input::placeholder{color:var(--text-dim);}
 
-  /* CART BAR */
-  .cart-bar { position:fixed; bottom:0; left:0; right:0; z-index:100; background:rgba(6,10,16,0.97); border-top:1px solid var(--border); padding:14px 32px; backdrop-filter:blur(20px); display:flex; align-items:center; gap:20px; flex-wrap:wrap; transform:translateY(100%); transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1); }
-  [data-theme="light"] .cart-bar { background:rgba(240,244,248,0.97); }
-  .cart-bar.visible { transform:translateY(0); }
-  .cart-info-bar { flex:1; min-width:180px; }
-  .cart-bar-title { font-family:'Rajdhani',sans-serif; font-size:0.7rem; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; margin-bottom:3px; }
-  .cart-bar-games { font-family:'Rajdhani',sans-serif; font-size:0.85rem; color:var(--text); line-height:1.4; }
-  .cart-bar-price { font-family:'Orbitron',monospace; font-size:1.4rem; font-weight:900; color:var(--neon); text-shadow:var(--neon-glow); white-space:nowrap; }
-  .cart-bar-slots { font-family:'Rajdhani',sans-serif; font-size:0.75rem; color:var(--text-dim); }
-  .order-btn { background:var(--neon); color:#060a10; border:none; padding:13px 28px; border-radius:8px; font-family:'Orbitron',monospace; font-weight:700; font-size:0.78rem; letter-spacing:2px; cursor:pointer; transition:all 0.2s; white-space:nowrap; text-transform:uppercase; }
-  .order-btn:hover { background:#fff; box-shadow:0 0 30px rgba(0,212,255,0.4); transform:scale(1.03); }
-  .order-btn:disabled { background:var(--border); color:var(--text-dim); cursor:not-allowed; transform:none; box-shadow:none; }
+/* CATALOG */
+.catalog-wrap{position:relative;z-index:1;padding:24px 20px 130px;max-width:900px;margin:0 auto;}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center;}
+.search-input{flex:1;min-width:180px;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:9px 16px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:0.95rem;outline:none;transition:border-color 0.2s;letter-spacing:1px;}
+.search-input:focus{border-color:var(--neon);}
+.search-input::placeholder{color:var(--text-dim);}
+.filter-bar{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px;}
+.filter-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);padding:5px 14px;border-radius:20px;font-family:'Rajdhani',sans-serif;font-size:0.85rem;font-weight:600;letter-spacing:1px;cursor:pointer;transition:all 0.2s;}
+.filter-btn:hover,.filter-btn.active{border-color:var(--neon);color:var(--neon);background:rgba(0,212,255,0.08);}
+.selection-bar{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;font-family:'Rajdhani',sans-serif;}
+.sel-text{font-size:0.9rem;color:var(--text-dim);}
+.sel-count{font-size:1.05rem;font-weight:700;color:var(--neon);}
+.sel-max{color:var(--text-dim);}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:16px;font-family:'Rajdhani',sans-serif;font-size:0.78rem;letter-spacing:1px;}
+.legend-item{display:flex;align-items:center;gap:5px;color:var(--text-dim);}
+.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.games-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;}
+.game-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;user-select:none;display:flex;flex-direction:column;}
+.game-card:hover:not(.unavailable):not(.cupo-card){border-color:rgba(0,212,255,0.5);transform:translateY(-2px);}
+.game-card.selected{border-color:var(--neon);background:rgba(0,212,255,0.07);box-shadow:0 0 14px rgba(0,212,255,0.12);}
+.game-card.unavailable{opacity:0.3;cursor:not-allowed;filter:grayscale(0.7);}
+.game-card.cupo-card{border-color:rgba(191,90,242,0.4);}
+.game-card.cupo-card:hover{border-color:rgba(191,90,242,0.7);transform:translateY(-2px);}
+.game-card.cupo-selected{border-color:var(--cupo);background:rgba(191,90,242,0.08);box-shadow:0 0 14px rgba(191,90,242,0.15);}
+.game-img-wrap{width:100%;aspect-ratio:6/9;overflow:hidden;background:var(--surface2);position:relative;}
+.game-img{width:100%;height:100%;object-fit:cover;transition:transform 0.3s;}
+.game-card:hover:not(.unavailable) .game-img{transform:scale(1.05);}
+.game-img-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:1.8rem;}
+.game-selected-badge{position:absolute;top:6px;right:6px;width:22px;height:22px;background:var(--neon);border-radius:50%;display:none;align-items:center;justify-content:center;color:#060a10;font-size:0.7rem;font-weight:900;box-shadow:0 0 8px rgba(0,212,255,0.6);}
+.game-card.selected .game-selected-badge{display:flex;}
+.cupo-selected-badge{position:absolute;top:6px;right:6px;width:22px;height:22px;background:var(--cupo);border-radius:50%;display:none;align-items:center;justify-content:center;color:#fff;font-size:0.7rem;font-weight:900;}
+.game-card.cupo-selected .cupo-selected-badge{display:flex;}
+.avail-badge{position:absolute;top:6px;left:6px;padding:2px 7px;border-radius:4px;font-family:'Rajdhani',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.badge-ok{background:rgba(0,255,136,0.2);color:var(--green);}
+.badge-instalar{background:rgba(255,149,0,0.2);color:var(--orange);}
+.badge-cupo{background:rgba(191,90,242,0.25);color:var(--cupo);}
+.badge-no{background:rgba(255,77,109,0.15);color:var(--red);}
+.featured-badge{position:absolute;bottom:6px;left:6px;padding:2px 7px;border-radius:4px;font-family:'Rajdhani',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:rgba(255,149,0,0.25);color:var(--orange);}
+.game-info{padding:10px;flex:1;}
+.game-name{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:0.88rem;color:var(--text);line-height:1.3;margin-bottom:4px;}
+.game-genre{font-size:0.68rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;font-family:'Rajdhani',sans-serif;}
+.cupo-add-btn{margin:6px 10px 10px;padding:6px;border-radius:6px;border:1px solid rgba(191,90,242,0.5);background:transparent;color:var(--cupo);font-family:'Rajdhani',sans-serif;font-size:0.8rem;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all 0.2s;text-align:center;}
+.cupo-add-btn:hover{background:rgba(191,90,242,0.1);border-color:var(--cupo);}
+.cupo-add-btn.added{background:rgba(191,90,242,0.15);border-color:var(--cupo);color:#fff;}
 
-  /* MODAL */
-  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:200; display:flex; align-items:center; justify-content:center; padding:20px; opacity:0; pointer-events:none; transition:opacity 0.3s; backdrop-filter:blur(10px); }
-  .modal-overlay.visible { opacity:1; pointer-events:all; }
-  .modal { background:var(--dark2); border:1px solid var(--neon); border-radius:16px; padding:32px; max-width:480px; width:100%; box-shadow:0 0 60px rgba(0,212,255,0.15); transform:scale(0.9); transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1); max-height:90vh; overflow-y:auto; }
-  [data-theme="light"] .modal { background:#fff; }
-  .modal-overlay.visible .modal { transform:scale(1); }
-  .modal h2 { font-family:'Orbitron',monospace; font-size:1.2rem; color:var(--text); margin-bottom:6px; }
-  .modal-sub { font-size:0.83rem; color:var(--text-dim); margin-bottom:20px; line-height:1.5; }
-  .modal-list { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:14px; margin-bottom:18px; }
-  .modal-section-label { font-family:'Rajdhani',sans-serif; font-size:0.7rem; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--border); }
-  .modal-item { display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid rgba(26,48,80,0.4); font-family:'Rajdhani',sans-serif; font-size:0.92rem; }
-  .modal-item:last-child { border-bottom:none; }
-  .modal-item-cupo { color:var(--cupo); }
-  .modal-total { display:flex; justify-content:space-between; padding-top:10px; margin-top:6px; border-top:1px solid var(--border); font-family:'Orbitron',monospace; font-size:1.05rem; font-weight:700; color:var(--neon); }
-  .modal-input { background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:11px 14px; border-radius:8px; font-family:'Rajdhani',sans-serif; font-size:0.95rem; width:100%; margin-bottom:14px; outline:none; transition:border-color 0.2s; letter-spacing:1px; }
-  .modal-input:focus { border-color:var(--neon); }
-  .modal-btns { display:flex; gap:10px; }
-  .btn-cancel { flex:1; background:transparent; border:1px solid var(--border); color:var(--text-dim); padding:11px; border-radius:8px; font-family:'Rajdhani',sans-serif; font-size:0.95rem; font-weight:600; cursor:pointer; transition:all 0.2s; letter-spacing:1px; }
-  .btn-cancel:hover { border-color:var(--accent); color:var(--accent); }
-  .btn-send { flex:2; background:var(--neon); border:none; color:#060a10; padding:11px; border-radius:8px; font-family:'Orbitron',monospace; font-size:0.78rem; font-weight:700; cursor:pointer; transition:all 0.2s; letter-spacing:1px; display:flex; align-items:center; justify-content:center; gap:7px; }
-  .btn-send:hover { background:#fff; box-shadow:0 0 20px rgba(0,212,255,0.3); }
+/* FAQ */
+.faq-section{position:relative;z-index:1;padding:36px 20px 0;max-width:900px;margin:0 auto;}
+.faq-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;}
+.faq-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;transition:border-color 0.2s;}
+.faq-card:hover{border-color:rgba(0,212,255,0.3);}
+.faq-icon{font-size:1.4rem;margin-bottom:10px;}
+.faq-q{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1rem;color:var(--neon);letter-spacing:1px;margin-bottom:8px;}
+.faq-a{font-size:0.85rem;color:var(--text-dim);line-height:1.6;}
 
-  /* FOOTER SPACER */
-  .footer { height:40px; }
+/* CART BAR */
+.cart-bar{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(6,10,16,0.97);border-top:1px solid var(--border);padding:14px 32px;backdrop-filter:blur(20px);display:flex;align-items:center;gap:20px;flex-wrap:wrap;transform:translateY(100%);transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);}
+[data-theme="light"] .cart-bar{background:rgba(240,244,248,0.97);}
+.cart-bar.visible{transform:translateY(0);}
+.cart-info-bar{flex:1;min-width:180px;}
+.cart-bar-title{font-family:'Rajdhani',sans-serif;font-size:0.7rem;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase;margin-bottom:3px;}
+.cart-bar-games{font-family:'Rajdhani',sans-serif;font-size:0.85rem;color:var(--text);line-height:1.4;}
+.cart-bar-price{font-family:'Orbitron',monospace;font-size:1.4rem;font-weight:900;color:var(--neon);text-shadow:var(--neon-glow);white-space:nowrap;}
+.cart-bar-slots{font-family:'Rajdhani',sans-serif;font-size:0.75rem;color:var(--text-dim);}
+.order-btn{background:var(--neon);color:#060a10;border:none;padding:13px 28px;border-radius:8px;font-family:'Orbitron',monospace;font-weight:700;font-size:0.78rem;letter-spacing:2px;cursor:pointer;transition:all 0.2s;white-space:nowrap;text-transform:uppercase;position:relative;}
+.order-btn:hover:not(:disabled){background:#fff;box-shadow:0 0 30px rgba(0,212,255,0.4);transform:scale(1.03);}
+.order-btn:disabled{background:var(--border);color:var(--text-dim);cursor:not-allowed;transform:none;box-shadow:none;}
+.order-btn.pulse{animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,212,255,0.5);}50%{box-shadow:0 0 0 10px rgba(0,212,255,0);}}
 
-  /* STATES */
-  .loading-state,.no-pack-msg,.empty-state { text-align:center; padding:50px 20px; color:var(--text-dim); font-family:'Rajdhani',sans-serif; font-size:0.95rem; letter-spacing:3px; text-transform:uppercase; }
-  .dot { display:inline-block; animation:blink 1.2s infinite; }
-  .dot:nth-child(2) { animation-delay:0.2s; }
-  .dot:nth-child(3) { animation-delay:0.4s; }
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.3s;backdrop-filter:blur(10px);}
+.modal-overlay.visible{opacity:1;pointer-events:all;}
+.modal{background:var(--dark2);border:1px solid var(--neon);border-radius:16px;padding:32px;max-width:480px;width:100%;box-shadow:0 0 60px rgba(0,212,255,0.15);transform:scale(0.9);transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);max-height:90vh;overflow-y:auto;}
+[data-theme="light"] .modal{background:#fff;}
+.modal-overlay.visible .modal{transform:scale(1);}
+.modal h2{font-family:'Orbitron',monospace;font-size:1.2rem;color:var(--text);margin-bottom:6px;}
+.modal-sub{font-size:0.83rem;color:var(--text-dim);margin-bottom:20px;line-height:1.5;}
+.modal-list{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:18px;}
+.modal-section-label{font-family:'Rajdhani',sans-serif;font-size:0.7rem;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.modal-item{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(26,48,80,0.4);font-family:'Rajdhani',sans-serif;font-size:0.92rem;}
+.modal-item:last-child{border-bottom:none;}
+.modal-item-cupo{color:var(--cupo);}
+.modal-total{display:flex;justify-content:space-between;padding-top:10px;margin-top:6px;border-top:1px solid var(--border);font-family:'Orbitron',monospace;font-size:1.05rem;font-weight:700;color:var(--neon);}
+.modal-input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:11px 14px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:0.95rem;width:100%;margin-bottom:14px;outline:none;transition:border-color 0.2s;letter-spacing:1px;}
+.modal-input:focus{border-color:var(--neon);}
+.modal-btns{display:flex;gap:10px;}
+.btn-cancel{flex:1;background:transparent;border:1px solid var(--border);color:var(--text-dim);padding:11px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:0.95rem;font-weight:600;cursor:pointer;transition:all 0.2s;letter-spacing:1px;}
+.btn-cancel:hover{border-color:var(--accent);color:var(--accent);}
+.btn-send{flex:2;background:var(--neon);border:none;color:#060a10;padding:11px;border-radius:8px;font-family:'Orbitron',monospace;font-size:0.78rem;font-weight:700;cursor:pointer;transition:all 0.2s;letter-spacing:1px;display:flex;align-items:center;justify-content:center;gap:7px;}
+.btn-send:hover{background:#fff;box-shadow:0 0 20px rgba(0,212,255,0.3);}
 
-  @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-  @keyframes blink { 0%,80%,100%{opacity:1} 40%{opacity:0} }
+/* SHARE MODAL */
+.share-modal{background:var(--dark2);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:380px;width:100%;transform:scale(0.9);transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);}
+[data-theme="light"] .share-modal{background:#fff;}
+.modal-overlay.visible .share-modal{transform:scale(1);}
+.share-url{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-family:'Rajdhani',sans-serif;font-size:0.88rem;color:var(--text-dim);word-break:break-all;margin:14px 0;}
+.share-btns{display:flex;flex-direction:column;gap:8px;}
+.share-btn{padding:11px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:0.95rem;letter-spacing:1px;cursor:pointer;transition:all 0.2s;border:1px solid var(--border);background:var(--surface2);color:var(--text);display:flex;align-items:center;justify-content:center;gap:8px;}
+.share-btn:hover{border-color:var(--neon);color:var(--neon);}
+.share-btn.primary{background:var(--neon);color:#060a10;border-color:var(--neon);}
+.share-btn.primary:hover{background:#fff;}
+
+.footer{height:40px;}
+.loading-state,.no-pack-msg,.empty-state{text-align:center;padding:50px 20px;color:var(--text-dim);font-family:'Rajdhani',sans-serif;font-size:0.95rem;letter-spacing:3px;text-transform:uppercase;}
+.dot{display:inline-block;animation:blink 1.2s infinite;}
+.dot:nth-child(2){animation-delay:0.2s;}
+.dot:nth-child(3){animation-delay:0.4s;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes blink{0%,80%,100%{opacity:1}40%{opacity:0}}
 </style>
 </head>
 <body>
@@ -208,7 +253,10 @@
     </div>
   </div>
   <div class="header-right">
-    <button class="theme-btn" onclick="toggleTheme()" id="themeBtn" title="Cambiar tema">🌙</button>
+    <button class="icon-btn" onclick="openShareModal()" title="Compartir">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+    </button>
+    <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="Cambiar tema">🌙</button>
     <button class="cart-btn" onclick="openModal()">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
       Ver pedido <span class="cart-count" id="cartCount">0</span>
@@ -216,25 +264,78 @@
   </div>
 </header>
 
+<!-- STICKY SEARCH -->
+<div class="sticky-search-bar" id="stickySearch">
+  <div class="sticky-search-inner">
+    <input type="text" class="sticky-search-input" placeholder="🔍  Buscar juego..." id="stickySearchInput" oninput="syncSearch(this)">
+    <div style="display:flex;gap:6px;flex-wrap:wrap;" id="stickyFilterBar"></div>
+  </div>
+</div>
+
 <!-- HERO -->
 <div class="hero">
   <div class="hero-eyebrow">🎮 Tienda de videojuegos · Acceso offline</div>
   <h1>Tu biblioteca<br><span>al mejor precio</span></h1>
   <p>Juegos importados directo a tu Steam. 100% garantizados y permanentes. Elige tu pack y selecciona los títulos que quieres.</p>
-
-  <!-- STATS DINÁMICOS -->
   <div class="stats-bar">
-    <div class="stat-item">
-      <div class="stat-num" id="statTotal">—</div>
-      <div class="stat-label">Juegos en catálogo</div>
+    <div class="stat-item"><div class="stat-num" id="statTotal">—</div><div class="stat-label">Juegos en catálogo</div></div>
+    <div class="stat-item"><div class="stat-num" id="statDisp">—</div><div class="stat-label">Disponibles ahora</div></div>
+    <div class="stat-item"><div class="stat-num" id="statGenres">—</div><div class="stat-label">Géneros</div></div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="how-section">
+  <div class="section-title">¿Cómo funciona?</div>
+  <div class="steps-grid">
+    <div class="step-card" id="howStep1">
+      <div class="step-num">01</div>
+      <div class="step-icon">📦</div>
+      <div class="step-title">Elige tu pack</div>
+      <div class="step-desc">Selecciona cuántos juegos quieres: 2, 5 o 10. Todos incluyen 1 juego de regalo.</div>
     </div>
-    <div class="stat-item">
-      <div class="stat-num" id="statDisp">—</div>
-      <div class="stat-label">Disponibles ahora</div>
+    <div class="step-card" id="howStep2">
+      <div class="step-num">02</div>
+      <div class="step-icon">🎮</div>
+      <div class="step-title">Selecciona juegos</div>
+      <div class="step-desc">Busca y elige los títulos que quieres del catálogo. Solo los disponibles son seleccionables.</div>
     </div>
-    <div class="stat-item">
-      <div class="stat-num" id="statGenres">—</div>
-      <div class="stat-label">Géneros</div>
+    <div class="step-card" id="howStep3">
+      <div class="step-num">03</div>
+      <div class="step-icon">📲</div>
+      <div class="step-title">Envía tu pedido</div>
+      <div class="step-desc">Confirma tu selección. El mensaje se copia automáticamente y se abre el DM de Instagram.</div>
+    </div>
+    <div class="step-card" id="howStep4">
+      <div class="step-num">04</div>
+      <div class="step-icon">⚡</div>
+      <div class="step-title">Recibe tu instalación</div>
+      <div class="step-desc">Coordinamos el pago y realizamos la instalación remota directa a tu biblioteca de Steam.</div>
+    </div>
+  </div>
+</div>
+
+<!-- STEPPER -->
+<div class="stepper-wrap">
+  <div class="stepper">
+    <div class="step-item">
+      <div class="step-dot active" id="dot1">1</div>
+      <div class="step-lbl active" id="lbl1">Pack</div>
+    </div>
+    <div class="step-line" id="line1"></div>
+    <div class="step-item">
+      <div class="step-dot" id="dot2">2</div>
+      <div class="step-lbl" id="lbl2">Juegos</div>
+    </div>
+    <div class="step-line" id="line2"></div>
+    <div class="step-item">
+      <div class="step-dot" id="dot3">3</div>
+      <div class="step-lbl" id="lbl3">Regalo</div>
+    </div>
+    <div class="step-line" id="line3"></div>
+    <div class="step-item">
+      <div class="step-dot" id="dot4">4</div>
+      <div class="step-lbl" id="lbl4">Confirmar</div>
     </div>
   </div>
 </div>
@@ -248,7 +349,7 @@
       <div class="pack-games">2</div><div class="pack-label">Juegos</div>
       <div class="pack-price">$5.000</div><div class="pack-bonus">+ 1 de regalo 🎁</div>
     </div>
-    <div class="pack-card" onclick="selectPack(5,10000,this)" style="position:relative">
+    <div class="pack-card" onclick="selectPack(5,10000,this)">
       <div class="pack-popular">⭐ MÁS POPULAR</div>
       <div class="pack-check">✓</div>
       <div class="pack-games">5</div><div class="pack-label">Juegos</div>
@@ -260,36 +361,35 @@
       <div class="pack-price">$15.000</div><div class="pack-bonus">+ 1 de regalo 🎁</div>
     </div>
   </div>
+  <button class="scroll-to-catalog-btn" id="scrollToCatalogBtn" onclick="scrollToCatalog()">
+    ↓ Ir al catálogo a elegir mis juegos
+  </button>
 </div>
 
-<!-- REGALO -->
+<!-- FEATURED -->
+<div class="featured-section" id="featuredSection" style="display:none">
+  <div class="section-title">Juegos destacados</div>
+  <div class="featured-grid" id="featuredGrid"></div>
+</div>
+
+<!-- GIFT -->
 <div class="gift-section" id="giftSection">
-  <div class="section-title" style="max-width:900px;margin:0 auto;padding:0 0 0 0">Juego de regalo 🎁</div>
+  <div class="section-title">Tu juego de regalo 🎁</div>
   <div class="gift-box">
-    <div class="gift-header">
-      <div>
-        <div class="gift-title">¿Cómo quieres elegir tu regalo?</div>
-        <div class="gift-subtitle">Solo juegos DISPONIBLE (sin cupo ni instalación asistida)</div>
+    <div class="gift-tag">Regalo del día</div>
+    <div class="gift-daily" id="giftDaily">
+      <div class="gift-daily-img-placeholder">🎮</div>
+      <div class="gift-daily-info">
+        <div class="gift-daily-label">Cargando...</div>
+        <div class="gift-daily-name" id="giftDailyName">—</div>
+        <div class="gift-daily-note">Este juego se actualiza diariamente de forma automática.</div>
       </div>
-    </div>
-    <div class="gift-options">
-      <div class="gift-option active" id="giftOptStore" onclick="selectGiftMode('store')">
-        🎲 Que SteamCL_Store lo elija
-      </div>
-      <div class="gift-option" id="giftOptRotate" onclick="selectGiftMode('rotate')">
-        🔄 Ver 5 opciones aleatorias
-      </div>
-    </div>
-    <div class="gift-chosen" id="giftChosen"></div>
-    <div id="giftRotateArea" style="display:none;margin-top:14px">
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px" id="giftRotateOptions"></div>
-      <button class="gift-rotate-btn" onclick="rotateGiftOptions()">↻ Otras opciones</button>
     </div>
   </div>
 </div>
 
 <!-- CATALOG -->
-<div class="catalog-wrap">
+<div class="catalog-wrap" id="catalogAnchor">
   <div class="section-title">Catálogo de juegos</div>
   <div id="noPack" class="no-pack-msg">↑ Primero elige un pack para seleccionar tus juegos</div>
   <div id="catalogContent" style="display:none">
@@ -304,7 +404,7 @@
       <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div> No disponible</div>
     </div>
     <div class="controls">
-      <input type="text" class="search-input" placeholder="🔍  Buscar juego..." id="searchInput" oninput="filterGames()">
+      <input type="text" class="search-input" placeholder="🔍  Buscar juego..." id="searchInput" oninput="syncSearch(this)">
     </div>
     <div class="filter-bar" id="filterBar"></div>
     <div class="games-grid" id="gamesGrid">
@@ -350,7 +450,7 @@
   <button class="order-btn" id="orderBtn" onclick="openModal()" disabled>Pedir por Instagram →</button>
 </div>
 
-<!-- MODAL -->
+<!-- ORDER MODAL -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeOutside(event)">
   <div class="modal">
     <h2>Confirmar pedido</h2>
@@ -367,137 +467,161 @@
   </div>
 </div>
 
+<!-- SHARE MODAL -->
+<div class="modal-overlay" id="shareOverlay" onclick="closeShareOutside(event)">
+  <div class="share-modal">
+    <h2 style="font-family:'Orbitron',monospace;font-size:1.1rem;color:var(--text);margin-bottom:6px;">Compartir tienda</h2>
+    <p style="font-size:0.83rem;color:var(--text-dim);margin-bottom:4px;">Comparte SteamCL Store con tus amigos gamers 🎮</p>
+    <div class="share-url" id="shareUrl"></div>
+    <div class="share-btns">
+      <button class="share-btn primary" onclick="copyShareUrl()">📋 Copiar enlace</button>
+      <button class="share-btn" onclick="shareWhatsApp()">💬 Compartir por WhatsApp</button>
+      <button class="share-btn" onclick="closeShareModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const INSTAGRAM_USER = 'steamcl_store';
 const SHEET_ID = '1pSrjAXJoX6rJR-sazsBGWCqAPb3sOI75Z7hAEeRrLRM';
 const SHEET_NAME = 'Hoja1';
 const CUPO_PRICE = 15000;
 
-let allGames = [], packGames = [], cupoGames = [];
-let currentPack = null, currentPrice = 0, activeFilter = 'Todos';
-let giftMode = 'store', chosenGift = null, rotatePool = [];
+let allGames=[], packGames=[], cupoGames=[];
+let currentPack=null, currentPrice=0, activeFilter='Todos';
+let dailyGift=null;
 
 // ── THEME ──
-function toggleTheme() {
-  const html = document.documentElement;
-  const isDark = html.getAttribute('data-theme') === 'dark';
-  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
-  document.getElementById('themeBtn').textContent = isDark ? '☀️' : '🌙';
+function toggleTheme(){
+  const h=document.documentElement;
+  const isDark=h.getAttribute('data-theme')==='dark';
+  h.setAttribute('data-theme',isDark?'light':'dark');
+  document.getElementById('themeBtn').textContent=isDark?'☀️':'🌙';
+}
+
+// ── STICKY SEARCH ──
+const catalogAnchor=document.getElementById('catalogAnchor');
+const stickySearch=document.getElementById('stickySearch');
+window.addEventListener('scroll',()=>{
+  if(!currentPack){stickySearch.style.display='none';return;}
+  const rect=catalogAnchor.getBoundingClientRect();
+  stickySearch.style.display=rect.top<70?'block':'none';
+},{ passive:true });
+
+function syncSearch(src){
+  const val=src.value;
+  document.getElementById('searchInput').value=val;
+  document.getElementById('stickySearchInput').value=val;
+  renderGames(filtered());
+}
+
+// ── SCROLL TO CATALOG ──
+function scrollToCatalog(){
+  document.getElementById('catalogAnchor').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 // ── AVAILABILITY ──
-function getAvailType(avail) {
-  const a = avail.toUpperCase();
-  if (a.includes('NO DISP') || a === 'NO DISPONIBLE') return 'no';
-  if (a.includes('CUPO')) return 'cupo';
-  if (a.includes('INSTA')) return 'instalar';
+function getAvailType(avail){
+  const a=avail.toUpperCase();
+  if(a.includes('NO DISP')||a==='NO DISPONIBLE') return 'no';
+  if(a.includes('CUPO')) return 'cupo';
+  if(a.includes('INSTA')) return 'instalar';
   return 'ok';
 }
 
+// ── DAILY GIFT (basado en fecha, sin re-roll) ──
+function computeDailyGift(pool){
+  if(!pool.length) return null;
+  const today=new Date();
+  const seed=today.getFullYear()*10000+(today.getMonth()+1)*100+today.getDate();
+  const idx=seed%pool.length;
+  return pool[idx];
+}
+
+function renderDailyGift(){
+  const pool=allGames.filter(g=>g.availType==='ok');
+  dailyGift=computeDailyGift(pool);
+  if(!dailyGift) return;
+  const area=document.getElementById('giftDaily');
+  area.innerHTML=`
+    ${dailyGift.image
+      ?`<img class="gift-daily-img" src="${dailyGift.image}" alt="${dailyGift.name}" onerror="this.style.display='none'">`
+      :`<div class="gift-daily-img-placeholder">🎮</div>`}
+    <div class="gift-daily-info">
+      <div class="gift-daily-label">🎁 Regalo de hoy</div>
+      <div class="gift-daily-name">${dailyGift.name}</div>
+      <div class="gift-daily-note" style="color:var(--text-dim);font-size:0.78rem">Se actualiza automáticamente cada día. Todos los clientes de hoy reciben este juego.</div>
+    </div>`;
+}
+
 // ── LOAD ──
-async function loadGames() {
-  document.getElementById('gamesGrid').innerHTML = `<div class="loading-state">Cargando catálogo<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>`;
-  try {
-    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
-    const res = await fetch(url);
-    const text = await res.text();
-    const rows = parseCSV(text);
-    if (rows.length < 2) { showError('Catálogo vacío.'); return; }
+async function loadGames(){
+  document.getElementById('gamesGrid').innerHTML=`<div class="loading-state">Cargando catálogo<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>`;
+  try{
+    const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
+    const res=await fetch(url);
+    const text=await res.text();
+    const rows=parseCSV(text);
+    if(rows.length<2){showError('Catálogo vacío.');return;}
+    const headers=rows[0].map(h=>h.trim().toLowerCase());
+    const dispIdx=headers.findIndex(h=>h.includes('disponib'));
+    const nameIdx=headers.findIndex(h=>h.includes('juego')||h.includes('nombre')||h.includes('name'));
+    const imgIdx=headers.findIndex(h=>h.includes('imagen')||h.includes('image')||h.includes('img'));
+    const genIdx=headers.findIndex(h=>h.includes('genero')||h.includes('género')||h.includes('genre')||h.includes('categ'));
+    const featIdx=headers.findIndex(h=>h.includes('destac')||h.includes('featured'));
 
-    const headers = rows[0].map(h => h.trim().toLowerCase());
-    const dispIdx = headers.findIndex(h => h.includes('disponib'));
-    const nameIdx = headers.findIndex(h => h.includes('juego') || h.includes('nombre') || h.includes('name'));
-    const imgIdx  = headers.findIndex(h => h.includes('imagen') || h.includes('image') || h.includes('img'));
-    const genIdx  = headers.findIndex(h => h.includes('genero') || h.includes('género') || h.includes('genre') || h.includes('categ'));
-
-    allGames = rows.slice(1).filter(r => r[nameIdx] && r[nameIdx].trim()).map(r => ({
-      name: (r[nameIdx]||'').trim(),
-      image: imgIdx>=0&&r[imgIdx] ? r[imgIdx].trim() : '',
-      genre: genIdx>=0&&r[genIdx] ? r[genIdx].trim() : 'General',
-      availability: dispIdx>=0&&r[dispIdx] ? r[dispIdx].trim() : 'DISPONIBLE',
-      availType: getAvailType(dispIdx>=0&&r[dispIdx] ? r[dispIdx].trim() : 'DISPONIBLE')
+    allGames=rows.slice(1).filter(r=>r[nameIdx]&&r[nameIdx].trim()).map(r=>({
+      name:(r[nameIdx]||'').trim(),
+      image:imgIdx>=0&&r[imgIdx]?r[imgIdx].trim():'',
+      genre:genIdx>=0&&r[genIdx]?r[genIdx].trim():'General',
+      availability:dispIdx>=0&&r[dispIdx]?r[dispIdx].trim():'DISPONIBLE',
+      availType:getAvailType(dispIdx>=0&&r[dispIdx]?r[dispIdx].trim():'DISPONIBLE'),
+      featured:featIdx>=0&&r[featIdx]?r[featIdx].trim().toUpperCase()==='SI':false
     }));
 
     updateStats();
     renderFilterBar();
     renderGames(filtered());
-    initGiftPool();
-  } catch(e) {
+    renderFeatured();
+    renderDailyGift();
+  }catch(e){
     showError('No se pudo cargar el catálogo. Verifica que el Sheet sea público.');
   }
 }
 
-function updateStats() {
-  const total = allGames.length;
-  const disp = allGames.filter(g => g.availType === 'ok' || g.availType === 'instalar' || g.availType === 'cupo').length;
-  const genres = new Set(allGames.map(g => g.genre).filter(Boolean)).size;
-  animateNum('statTotal', total);
-  animateNum('statDisp', disp);
-  animateNum('statGenres', genres);
+// Stats
+function updateStats(){
+  const total=allGames.length;
+  const disp=allGames.filter(g=>g.availType!=='no').length;
+  const genres=new Set(allGames.map(g=>g.genre).filter(Boolean)).size;
+  animateNum('statTotal',total);
+  animateNum('statDisp',disp);
+  animateNum('statGenres',genres);
+}
+function animateNum(id,target){
+  const el=document.getElementById(id);
+  let v=0; const step=Math.max(1,Math.ceil(target/40));
+  const iv=setInterval(()=>{v=Math.min(v+step,target);el.textContent=v;if(v>=target)clearInterval(iv);},30);
 }
 
-function animateNum(id, target) {
-  const el = document.getElementById(id);
-  let start = 0;
-  const step = Math.ceil(target / 40);
-  const interval = setInterval(() => {
-    start = Math.min(start + step, target);
-    el.textContent = start;
-    if (start >= target) clearInterval(interval);
-  }, 30);
+// Featured
+function renderFeatured(){
+  const featured=allGames.filter(g=>g.featured&&g.availType!=='no');
+  if(!featured.length) return;
+  document.getElementById('featuredSection').style.display='block';
+  document.getElementById('featuredGrid').innerHTML=featured.map(g=>gameCardHTML(g,true)).join('');
 }
 
-// ── GIFT ──
-function initGiftPool() {
-  // Solo juegos DISPONIBLE puro (availType === 'ok'), excluye cupo e instalar
-  rotatePool = allGames.filter(g => g.availType === 'ok');
-}
-
-function selectGiftMode(mode) {
-  giftMode = mode;
-  document.getElementById('giftOptStore').classList.toggle('active', mode==='store');
-  document.getElementById('giftOptRotate').classList.toggle('active', mode==='rotate');
-  const chosenEl = document.getElementById('giftChosen');
-  const rotateArea = document.getElementById('giftRotateArea');
-
-  if (mode === 'store') {
-    chosenEl.style.display = 'block';
-    chosenEl.innerHTML = `🎲 <span>SteamCL_Store</span> elegirá tu juego de regalo al momento de la entrega.`;
-    rotateArea.style.display = 'none';
-    chosenGift = null;
-  } else {
-    chosenEl.style.display = 'none';
-    rotateArea.style.display = 'block';
-    rotateGiftOptions();
-  }
-}
-
-function rotateGiftOptions() {
-  if (rotatePool.length === 0) return;
-  const shuffled = [...rotatePool].sort(() => Math.random() - 0.5).slice(0, 5);
-  const area = document.getElementById('giftRotateOptions');
-  area.innerHTML = shuffled.map(g =>
-    `<div class="gift-option ${chosenGift===g.name?'active':''}" onclick="pickGift('${g.name.replace(/'/g,"\\'")}')">🎮 ${g.name}</div>`
-  ).join('');
-}
-
-function pickGift(name) {
-  chosenGift = name;
-  document.getElementById('giftChosen').style.display = 'block';
-  document.getElementById('giftChosen').innerHTML = `🎁 Regalo elegido: <span>${name}</span>`;
-  rotateGiftOptions();
-}
-
-// ── CSV ──
-function parseCSV(text) {
-  const rows = [];
-  for (const line of text.split('\n')) {
-    if (!line.trim()) continue;
-    const cols = []; let cur = '', inQ = false;
-    for (let i=0;i<line.length;i++) {
-      const c = line[i];
-      if (c==='"') inQ=!inQ;
-      else if (c===','&&!inQ) { cols.push(cur); cur=''; }
+// CSV
+function parseCSV(text){
+  const rows=[];
+  for(const line of text.split('\n')){
+    if(!line.trim()) continue;
+    const cols=[];let cur='',inQ=false;
+    for(let i=0;i<line.length;i++){
+      const c=line[i];
+      if(c==='"') inQ=!inQ;
+      else if(c===','&&!inQ){cols.push(cur);cur='';}
       else cur+=c;
     }
     cols.push(cur);
@@ -506,173 +630,173 @@ function parseCSV(text) {
   return rows;
 }
 
-// ── FILTERS ──
-function renderFilterBar() {
-  const genres = ['Todos',...new Set(allGames.map(g=>g.genre).filter(Boolean))].sort();
-  document.getElementById('filterBar').innerHTML = genres.map(g =>
-    `<button class="filter-btn ${g==='Todos'?'active':''}" onclick="setFilter('${g.replace(/'/g,"\\'")}',this)">${g}</button>`
-  ).join('');
+// Filters
+function renderFilterBar(){
+  const genres=['Todos',...new Set(allGames.map(g=>g.genre).filter(Boolean))].sort();
+  const html=genres.map(g=>`<button class="filter-btn ${g==='Todos'?'active':''}" onclick="setFilter('${g.replace(/'/g,"\\'")}',this)">${g}</button>`).join('');
+  document.getElementById('filterBar').innerHTML=html;
+  document.getElementById('stickyFilterBar').innerHTML=html.replace(/filter-btn/g,'filter-btn').replace(/active/,'active');
 }
-function setFilter(cat,btn) {
+function setFilter(cat,btn){
   activeFilter=cat;
   document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
+  // mark all buttons with same text
+  document.querySelectorAll('.filter-btn').forEach(b=>{if(b.textContent===cat)b.classList.add('active');});
   renderGames(filtered());
 }
-function filtered() {
+function filtered(){
   const q=document.getElementById('searchInput').value.toLowerCase();
   return allGames.filter(g=>g.name.toLowerCase().includes(q)&&(activeFilter==='Todos'||g.genre===activeFilter));
 }
-function filterGames() { renderGames(filtered()); }
 
-// ── RENDER ──
-function badgeClass(t) { return {ok:'badge-ok',instalar:'badge-instalar',cupo:'badge-cupo',no:'badge-no'}[t]||'badge-ok'; }
-function badgeLabel(t) { return {ok:'OK',instalar:'Instalar',cupo:'Cupo',no:'No disp.'}[t]||'OK'; }
+// Game card HTML
+function gameCardHTML(g, isFeatured=false){
+  const t=g.availType;
+  const isPackSel=packGames.some(s=>s.name===g.name);
+  const isCupoSel=cupoGames.some(s=>s.name===g.name);
+  const sn=g.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  const sg=g.genre.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  const si=g.image.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  const imgHTML=g.image?`<img class="game-img" src="${g.image}" alt="${g.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:'' ;
+  const ph=`<div class="game-img-placeholder" ${g.image?'style="display:none"':''}>🎮</div>`;
+  const featBadge=isFeatured?`<div class="featured-badge">⭐ Destacado</div>`:'';
 
-function renderGames(games) {
-  const grid=document.getElementById('gamesGrid');
-  if (!games.length) { grid.innerHTML=`<div class="empty-state">No se encontraron juegos</div>`; return; }
-  grid.innerHTML=games.map(g=>{
-    const t=g.availType;
-    const isPackSel=packGames.some(s=>s.name===g.name);
-    const isCupoSel=cupoGames.some(s=>s.name===g.name);
-    const sn=g.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-    const sg=g.genre.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-    const si=g.image.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  if(t==='no') return `<div class="game-card unavailable">
+    <div class="game-img-wrap">${imgHTML}${ph}<div class="avail-badge badge-no">No disp.</div></div>
+    <div class="game-info"><div class="game-name">${g.name}</div><div class="game-genre">${g.genre}</div></div>
+  </div>`;
 
-    if (t==='no') return `<div class="game-card unavailable">
-      <div class="game-img-wrap">
-        ${g.image?`<img class="game-img" src="${g.image}" alt="${g.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''} 
-        <div class="game-img-placeholder" ${g.image?'style="display:none"':''}>🎮</div>
-        <div class="avail-badge badge-no">No disp.</div>
-      </div>
-      <div class="game-info"><div class="game-name">${g.name}</div><div class="game-genre">${g.genre}</div></div>
-    </div>`;
+  if(t==='cupo') return `<div class="game-card cupo-card ${isCupoSel?'cupo-selected':''}" onclick="toggleCupo('${sn}','${sg}','${si}')">
+    <div class="game-img-wrap">${imgHTML}${ph}<div class="cupo-selected-badge">✓</div><div class="avail-badge badge-cupo">Cupo</div>${featBadge}</div>
+    <div class="game-info"><div class="game-name">${g.name}</div><div class="game-genre">${g.genre}</div></div>
+    <button class="cupo-add-btn ${isCupoSel?'added':''}" onclick="event.stopPropagation();toggleCupo('${sn}','${sg}','${si}')">${isCupoSel?'✓ Agregado':`+ Agregar $${CUPO_PRICE.toLocaleString('es-CL')}`}</button>
+  </div>`;
 
-    if (t==='cupo') return `<div class="game-card cupo-card ${isCupoSel?'cupo-selected':''}" onclick="toggleCupo('${sn}','${sg}','${si}')">
-      <div class="game-img-wrap">
-        ${g.image?`<img class="game-img" src="${g.image}" alt="${g.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''} 
-        <div class="game-img-placeholder" ${g.image?'style="display:none"':''}>🎮</div>
-        <div class="cupo-selected-badge">✓</div>
-        <div class="avail-badge badge-cupo">Cupo</div>
-      </div>
-      <div class="game-info"><div class="game-name">${g.name}</div><div class="game-genre">${g.genre}</div></div>
-      <button class="cupo-add-btn ${isCupoSel?'added':''}" onclick="event.stopPropagation();toggleCupo('${sn}','${sg}','${si}')">
-        ${isCupoSel?'✓ Agregado':`+ Agregar $${CUPO_PRICE.toLocaleString('es-CL')}`}
-      </button>
-    </div>`;
-
-    return `<div class="game-card ${isPackSel?'selected':''}" onclick="togglePack('${sn}','${sg}','${si}','${t}')">
-      <div class="game-img-wrap">
-        ${g.image?`<img class="game-img" src="${g.image}" alt="${g.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`:''} 
-        <div class="game-img-placeholder" ${g.image?'style="display:none"':''}>🎮</div>
-        <div class="game-selected-badge">✓</div>
-        <div class="avail-badge ${badgeClass(t)}">${badgeLabel(t)}</div>
-      </div>
-      <div class="game-info"><div class="game-name">${g.name}</div><div class="game-genre">${g.genre}</div></div>
-    </div>`;
-  }).join('');
+  const badgeCls={ok:'badge-ok',instalar:'badge-instalar'}[t]||'badge-ok';
+  const badgeLbl={ok:'OK',instalar:'Instalar'}[t]||'OK';
+  return `<div class="game-card ${isPackSel?'selected':''}" onclick="togglePack('${sn}','${sg}','${si}','${t}')">
+    <div class="game-img-wrap">${imgHTML}${ph}<div class="game-selected-badge">✓</div><div class="avail-badge ${badgeCls}">${badgeLbl}</div>${featBadge}</div>
+    <div class="game-info"><div class="game-name">${g.name}</div><div class="game-genre">${g.genre}</div></div>
+  </div>`;
 }
 
-function showError(msg) { document.getElementById('gamesGrid').innerHTML=`<div class="empty-state">${msg}</div>`; }
+function renderGames(games){
+  const grid=document.getElementById('gamesGrid');
+  if(!games.length){grid.innerHTML=`<div class="empty-state">No se encontraron juegos</div>`;return;}
+  grid.innerHTML=games.map(g=>gameCardHTML(g)).join('');
+}
+function showError(msg){document.getElementById('gamesGrid').innerHTML=`<div class="empty-state">${msg}</div>`;}
 
-// ── PACK / CUPO ──
-function selectPack(slots,price,el) {
+// Pack
+function selectPack(slots,price,el){
   document.querySelectorAll('.pack-card').forEach(c=>c.classList.remove('selected'));
   el.classList.add('selected');
-  currentPack=slots; currentPrice=price;
+  currentPack=slots;currentPrice=price;
   packGames=packGames.slice(0,slots);
   document.getElementById('noPack').style.display='none';
   document.getElementById('catalogContent').style.display='block';
   document.getElementById('giftSection').style.display='block';
-  updateSelBar(); updateCart(); loadGames();
+  document.getElementById('scrollToCatalogBtn').style.display='block';
+  updateSelBar();updateCart();updateStepper();loadGames();
+  // highlight step 1
+  document.getElementById('howStep1').classList.add('step-active');
 }
 
-function togglePack(name,genre,image,availType) {
-  if (!currentPack) return;
+function togglePack(name,genre,image,availType){
+  if(!currentPack) return;
   const idx=packGames.findIndex(g=>g.name===name);
-  if (idx>=0) packGames.splice(idx,1);
-  else { if (packGames.length>=currentPack) return; packGames.push({name,genre,image,availType}); }
-  updateSelBar(); renderGames(filtered()); updateCart();
+  if(idx>=0) packGames.splice(idx,1);
+  else{if(packGames.length>=currentPack)return;packGames.push({name,genre,image,availType});}
+  updateSelBar();renderGames(filtered());updateCart();updateStepper();
 }
-
-function toggleCupo(name,genre,image) {
+function toggleCupo(name,genre,image){
   const idx=cupoGames.findIndex(g=>g.name===name);
-  if (idx>=0) cupoGames.splice(idx,1);
+  if(idx>=0) cupoGames.splice(idx,1);
   else cupoGames.push({name,genre,image});
-  renderGames(filtered()); updateCart();
+  renderGames(filtered());updateCart();
 }
-
-function updateSelBar() {
+function updateSelBar(){
   document.getElementById('selCount').textContent=packGames.length;
   document.getElementById('selMax').textContent=` / ${currentPack}`;
 }
 
-function updateCart() {
+// Stepper
+function updateStepper(){
+  const packDone=!!currentPack;
+  const gamesDone=packGames.length>=currentPack;
+  const giftDone=!!dailyGift;
+
+  function setState(dotId,lblId,state){
+    const dot=document.getElementById(dotId);
+    const lbl=document.getElementById(lblId);
+    dot.className='step-dot';lbl.className='step-lbl';
+    if(state==='done'){dot.classList.add('done');lbl.classList.add('done');dot.textContent='✓';}
+    else if(state==='active'){dot.classList.add('active');lbl.classList.add('active');}
+  }
+  function setLine(id,done){document.getElementById(id).className='step-line'+(done?' done':'');}
+
+  if(!packDone){setState('dot1','lbl1','active');setState('dot2','lbl2','');setState('dot3','lbl3','');setState('dot4','lbl4','');setLine('line1',false);setLine('line2',false);setLine('line3',false);}
+  else if(!gamesDone){setState('dot1','lbl1','done');setState('dot2','lbl2','active');setState('dot3','lbl3','');setState('dot4','lbl4','');setLine('line1',true);setLine('line2',false);setLine('line3',false);}
+  else{setState('dot1','lbl1','done');setState('dot2','lbl2','done');setState('dot3','lbl3','done');setState('dot4','lbl4','active');setLine('line1',true);setLine('line2',true);setLine('line3',true);}
+
+  // how steps highlight
+  if(packDone) document.getElementById('howStep1').classList.add('step-active');
+  if(gamesDone) document.getElementById('howStep2').classList.add('step-active');
+}
+
+// Cart
+function updateCart(){
   const total=currentPrice+(cupoGames.length*CUPO_PRICE);
   const totalItems=packGames.length+cupoGames.length;
   document.getElementById('cartCount').textContent=totalItems;
   document.getElementById('cartBarPrice').textContent=`$${total.toLocaleString('es-CL')}`;
-  let slotsText=`${packGames.length}/${currentPack} del pack`;
-  if (cupoGames.length>0) slotsText+=` + ${cupoGames.length} cupo`;
+  let slotsText=`${packGames.length}/${currentPack||0} del pack`;
+  if(cupoGames.length>0) slotsText+=` + ${cupoGames.length} cupo`;
   document.getElementById('cartBarSlots').textContent=slotsText;
-  if (totalItems>0) {
+  if(totalItems>0){
     document.getElementById('cartBar').classList.add('visible');
     document.getElementById('cartBarGames').textContent=[...packGames,...cupoGames].map(g=>g.name).join(', ');
-  } else {
-    document.getElementById('cartBar').classList.remove('visible');
-  }
+  }else{document.getElementById('cartBar').classList.remove('visible');}
   const btn=document.getElementById('orderBtn');
-  const packReady=packGames.length>=currentPack;
+  const packReady=currentPack&&packGames.length>=currentPack;
   btn.disabled=!packReady&&cupoGames.length===0;
-  if (!currentPack) btn.textContent='Selecciona un pack →';
-  else if (!packReady&&cupoGames.length===0) btn.textContent=`Selecciona ${currentPack-packGames.length} más →`;
-  else btn.textContent='Pedir por Instagram →';
+  if(packReady){btn.classList.add('pulse');btn.textContent='Pedir por Instagram →';}
+  else{btn.classList.remove('pulse');btn.textContent=currentPack?`Selecciona ${currentPack-packGames.length} más →`:'Selecciona un pack →';}
 }
 
-// ── MODAL ──
-function openModal() {
+// Modal
+function openModal(){
   const totalItems=packGames.length+cupoGames.length;
-  if (totalItems===0) return;
+  if(totalItems===0) return;
   const total=currentPrice+(cupoGames.length*CUPO_PRICE);
   let html='';
-  if (packGames.length>0) {
+  if(packGames.length>0){
     html+=`<div class="modal-section-label">📦 Pack ${currentPack} juegos — $${currentPrice.toLocaleString('es-CL')}</div>`;
     html+=packGames.map(g=>`<div class="modal-item"><span>${g.name}</span><span style="color:var(--text-dim);font-size:0.78rem">${g.genre}</span></div>`).join('');
   }
-  if (cupoGames.length>0) {
-    html+=`<div class="modal-section-label" style="margin-top:12px">🔮 Juegos con cupo — $${CUPO_PRICE.toLocaleString('es-CL')} c/u</div>`;
+  if(cupoGames.length>0){
+    html+=`<div class="modal-section-label" style="margin-top:12px">🔮 Juegos con cupo</div>`;
     html+=cupoGames.map(g=>`<div class="modal-item"><span class="modal-item-cupo">${g.name}</span><span style="color:var(--cupo);font-size:0.78rem">$${CUPO_PRICE.toLocaleString('es-CL')}</span></div>`).join('');
   }
-  // Regalo
-  const giftText = giftMode==='store' ? 'SteamCL_Store elige' : (chosenGift || 'Sin elegir aún');
-  html+=`<div class="modal-section-label" style="margin-top:12px">🎁 Juego de regalo</div>`;
-  html+=`<div class="modal-item"><span style="color:var(--neon)">${giftText}</span></div>`;
+  html+=`<div class="modal-section-label" style="margin-top:12px">🎁 Regalo del día</div>`;
+  html+=`<div class="modal-item"><span style="color:var(--neon)">${dailyGift?dailyGift.name:'Se asignará al entregar'}</span></div>`;
   html+=`<div class="modal-total"><span>Total</span><span>$${total.toLocaleString('es-CL')}</span></div>`;
   document.getElementById('modalList').innerHTML=html;
   document.getElementById('modalOverlay').classList.add('visible');
 }
-function closeModal() { document.getElementById('modalOverlay').classList.remove('visible'); }
-function closeOutside(e) { if (e.target===document.getElementById('modalOverlay')) closeModal(); }
+function closeModal(){document.getElementById('modalOverlay').classList.remove('visible');}
+function closeOutside(e){if(e.target===document.getElementById('modalOverlay'))closeModal();}
 
-// ── SEND ──
-function sendOrder() {
+// Send
+function sendOrder(){
   const name=document.getElementById('customerName').value.trim();
   const total=currentPrice+(cupoGames.length*CUPO_PRICE);
   let msg=`Hola! Quiero hacer un pedido 🎮\n`;
-  if (packGames.length>0) {
-    msg+=`\n📦 Pack ${currentPack} juegos — $${currentPrice.toLocaleString('es-CL')}\n`;
-    msg+=packGames.map(g=>`• ${g.name}`).join('\n');
-  }
-  if (cupoGames.length>0) {
-    msg+=`\n\n🔮 Juegos con cupo — $${CUPO_PRICE.toLocaleString('es-CL')} c/u\n`;
-    msg+=cupoGames.map(g=>`• ${g.name}`).join('\n');
-  }
-  const giftText=giftMode==='store'?'Que SteamCL_Store elija':(chosenGift||'Sin elegir');
-  msg+=`\n\n🎁 Regalo: ${giftText}`;
+  if(packGames.length>0){msg+=`\n📦 Pack ${currentPack} juegos — $${currentPrice.toLocaleString('es-CL')}\n`;msg+=packGames.map(g=>`• ${g.name}`).join('\n');}
+  if(cupoGames.length>0){msg+=`\n\n🔮 Juegos con cupo — $${CUPO_PRICE.toLocaleString('es-CL')} c/u\n`;msg+=cupoGames.map(g=>`• ${g.name}`).join('\n');}
+  msg+=`\n\n🎁 Regalo del día: ${dailyGift?dailyGift.name:'A confirmar'}`;
   msg+=`\n\n💰 Total: $${total.toLocaleString('es-CL')}`;
   msg+=`\n👤 ${name||'Sin nombre'}`;
-
   navigator.clipboard.writeText(msg).then(()=>{
     showToast('✅ Mensaje copiado — pégalo en el DM de Instagram');
     setTimeout(()=>window.open(`https://ig.me/m/${INSTAGRAM_USER}`,'_blank'),800);
@@ -683,16 +807,54 @@ function sendOrder() {
   closeModal();
 }
 
-function showToast(msg) {
-  const existing=document.getElementById('toast');
-  if (existing) existing.remove();
-  const toast=document.createElement('div');
-  toast.id='toast';
-  toast.textContent=msg;
-  toast.style.cssText=`position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#0e1928;border:1px solid var(--neon);color:#fff;padding:12px 24px;border-radius:10px;font-family:'Rajdhani',sans-serif;font-size:0.95rem;letter-spacing:1px;z-index:999;box-shadow:0 0 20px rgba(0,212,255,0.2);white-space:nowrap;`;
-  document.body.appendChild(toast);
-  setTimeout(()=>toast.remove(),4000);
+// Share
+function openShareModal(){
+  document.getElementById('shareUrl').textContent=window.location.href;
+  document.getElementById('shareOverlay').classList.add('visible');
 }
+function closeShareModal(){document.getElementById('shareOverlay').classList.remove('visible');}
+function closeShareOutside(e){if(e.target===document.getElementById('shareOverlay'))closeShareModal();}
+function copyShareUrl(){
+  navigator.clipboard.writeText(window.location.href).then(()=>showToast('✅ Enlace copiado'));
+  closeShareModal();
+}
+function shareWhatsApp(){
+  const msg=`¡Mira esta tienda de juegos para Steam! Precios increíbles 🎮 ${window.location.href}`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`,'_blank');
+  closeShareModal();
+}
+
+// Toast
+function showToast(msg){
+  const e=document.getElementById('toast');if(e)e.remove();
+  const t=document.createElement('div');t.id='toast';t.textContent=msg;
+  t.style.cssText=`position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#0e1928;border:1px solid var(--neon);color:#fff;padding:12px 24px;border-radius:10px;font-family:'Rajdhani',sans-serif;font-size:0.95rem;letter-spacing:1px;z-index:999;box-shadow:0 0 20px rgba(0,212,255,0.2);white-space:nowrap;`;
+  document.body.appendChild(t);setTimeout(()=>t.remove(),4000);
+}
+
+// Init stats on load (before pack selected)
+window.addEventListener('load',async()=>{
+  try{
+    const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
+    const res=await fetch(url);const text=await res.text();
+    const rows=parseCSV(text);if(rows.length<2)return;
+    const headers=rows[0].map(h=>h.trim().toLowerCase());
+    const dispIdx=headers.findIndex(h=>h.includes('disponib'));
+    const nameIdx=headers.findIndex(h=>h.includes('juego')||h.includes('nombre')||h.includes('name'));
+    const imgIdx=headers.findIndex(h=>h.includes('imagen')||h.includes('image')||h.includes('img'));
+    const genIdx=headers.findIndex(h=>h.includes('genero')||h.includes('género')||h.includes('genre')||h.includes('categ'));
+    const featIdx=headers.findIndex(h=>h.includes('destac')||h.includes('featured'));
+    allGames=rows.slice(1).filter(r=>r[nameIdx]&&r[nameIdx].trim()).map(r=>({
+      name:(r[nameIdx]||'').trim(),
+      image:imgIdx>=0&&r[imgIdx]?r[imgIdx].trim():'',
+      genre:genIdx>=0&&r[genIdx]?r[genIdx].trim():'General',
+      availability:dispIdx>=0&&r[dispIdx]?r[dispIdx].trim():'DISPONIBLE',
+      availType:getAvailType(dispIdx>=0&&r[dispIdx]?r[dispIdx].trim():'DISPONIBLE'),
+      featured:featIdx>=0&&r[featIdx]?r[featIdx].trim().toUpperCase()==='SI':false
+    }));
+    updateStats();renderFeatured();renderDailyGift();
+  }catch(e){}
+});
 </script>
 </body>
 </html>

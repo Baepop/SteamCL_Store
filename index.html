@@ -173,7 +173,7 @@
     </div>
     <div>
       <div class="logo-text">STEAM<span>CL</span></div>
-      <div class="logo-sub">Store</div>
+      <div class="logo-sub">Store · Chile</div>
     </div>
   </div>
   <button class="cart-btn" onclick="openModal()">
@@ -513,10 +513,38 @@ function sendOrder() {
   }
   msg += `\n\n💰 Total: $${total.toLocaleString('es-CL')}`;
   msg += `\n👤 ${name || 'Sin nombre'}`;
-  msg += `\n\n(Pedido desde steamcl.store)`;
 
-  window.open(`https://ig.me/m/${INSTAGRAM_USER}?text=${encodeURIComponent(msg)}`, '_blank');
+  navigator.clipboard.writeText(msg).then(() => {
+    // Mostrar toast de confirmación
+    showToast('✅ Mensaje copiado — pégalo en el DM de Instagram');
+    setTimeout(() => {
+      window.open(`https://ig.me/m/${INSTAGRAM_USER}`, '_blank');
+    }, 800);
+  }).catch(() => {
+    // Fallback si clipboard falla (algunos navegadores móviles)
+    showToast('📋 Copia el mensaje y pégalo en Instagram');
+    window.open(`https://ig.me/m/${INSTAGRAM_USER}`, '_blank');
+  });
+
   closeModal();
+}
+
+function showToast(msg) {
+  const existing = document.getElementById('toast');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.id = 'toast';
+  toast.textContent = msg;
+  toast.style.cssText = `
+    position:fixed; bottom:100px; left:50%; transform:translateX(-50%);
+    background:#0e1928; border:1px solid var(--neon); color:#fff;
+    padding:12px 24px; border-radius:10px; font-family:'Rajdhani',sans-serif;
+    font-size:0.95rem; letter-spacing:1px; z-index:999;
+    box-shadow:0 0 20px rgba(0,212,255,0.2);
+    animation:fadeUp 0.3s forwards;
+  `;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 4000);
 }
 </script>
 </body>

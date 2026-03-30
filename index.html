@@ -695,16 +695,38 @@ function parseCSV(text){
 
 // Filters
 function renderFilterBar(){
+  const menu=document.getElementById('genreDropdownMenu');
+  if(!menu) return;
   const genres=['Todos',...new Set(allGames.map(g=>g.genre).filter(Boolean))].sort();
-  const html=genres.map(g=>`<button class="filter-btn ${g==='Todos'?'active':''}" onclick="setFilter('${g.replace(/'/g,"\\'")}',this)">${g}</button>`).join('');
-  document.getElementById('filterBar').innerHTML=html;
-  document.getElementById('stickyFilterBar').innerHTML=html.replace(/filter-btn/g,'filter-btn').replace(/active/,'active');
+  menu.innerHTML=genres.map(g=>{
+    const count=g==='Todos'?allGames.length:allGames.filter(x=>x.genre===g).length;
+    return `<div class="genre-option ${g==='Todos'?'active':''}" onclick="setFilter(${JSON.stringify(g)})">${g}<span class="genre-count">${count}</span></div>`;
+  }).join('');
+  updateGenreLabel('Todos');
 }
-function setFilter(cat,btn){
+function toggleGenreDropdown(){
+  const btn=document.getElementById('genreDropdownBtn');
+  const menu=document.getElementById('genreDropdownMenu');
+  const isOpen=menu.classList.contains('open');
+  btn.classList.toggle('open',!isOpen);
+  menu.classList.toggle('open',!isOpen);
+}
+function updateGenreLabel(cat){
+  const lbl=document.getElementById('genreDropdownLabel');
+  if(lbl) lbl.textContent=cat==='Todos'?'🎯 Todos los géneros':'🎯 '+cat;
+  const sticky=document.getElementById('stickyGenreLabel');
+  if(sticky) sticky.textContent=cat==='Todos'?'Todos los géneros':cat;
+}
+function setFilter(cat){
   activeFilter=cat;
-  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
-  // mark all buttons with same text
-  document.querySelectorAll('.filter-btn').forEach(b=>{if(b.textContent===cat)b.classList.add('active');});
+  document.querySelectorAll('.genre-option').forEach(o=>o.classList.remove('active'));
+  document.querySelectorAll('.genre-option').forEach(o=>{
+    if(o.firstChild&&o.firstChild.textContent&&o.firstChild.textContent.trim()===cat) o.classList.add('active');
+    else if(o.childNodes[0]&&o.childNodes[0].nodeType===3&&o.childNodes[0].textContent.trim()===cat) o.classList.add('active');
+  });
+  updateGenreLabel(cat);
+  document.getElementById('genreDropdownBtn').classList.remove('open');
+  document.getElementById('genreDropdownMenu').classList.remove('open');
   renderGames(filtered());
 }
 function filtered(){

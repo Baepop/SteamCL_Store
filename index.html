@@ -122,10 +122,10 @@ header{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-
 .gift-opt-btn.active{border-color:var(--neon);color:var(--neon);background:rgba(0,212,255,0.08);}
 
 /* STICKY SEARCH */
-.sticky-search-bar{position:sticky;top:70px;z-index:40;background:rgba(6,10,16,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:10px 20px;display:none;transition:all 0.3s;}
+.sticky-search-bar{position:sticky;top:var(--header-h,70px);z-index:40;background:rgba(6,10,16,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:10px 20px;display:none;transition:all 0.3s;}
 [data-theme="light"] .sticky-search-bar{background:rgba(240,244,248,0.97);}
-.sticky-search-inner{max-width:900px;margin:0 auto;display:flex;gap:10px;align-items:center;}
-.sticky-search-input{flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:0.95rem;outline:none;transition:border-color 0.2s;letter-spacing:1px;}
+.sticky-search-inner{max-width:900px;margin:0 auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.sticky-search-input{flex:1;min-width:140px;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:0.95rem;outline:none;transition:border-color 0.2s;letter-spacing:1px;}
 .sticky-search-input:focus{border-color:var(--neon);}
 .sticky-search-input::placeholder{color:var(--text-dim);}
 
@@ -552,10 +552,15 @@ function toggleTheme(){
 // ── STICKY SEARCH ──
 const catalogAnchor=document.getElementById('catalogAnchor');
 const stickySearch=document.getElementById('stickySearch');
+function getHeaderH(){ return document.querySelector('header').getBoundingClientRect().height; }
+function updateHeaderVar(){ document.documentElement.style.setProperty('--header-h', getHeaderH()+'px'); }
+updateHeaderVar();
+window.addEventListener('resize', updateHeaderVar, {passive:true});
 window.addEventListener('scroll',()=>{
   if(!currentPack){stickySearch.style.display='none';return;}
+  const hh=getHeaderH();
   const rect=catalogAnchor.getBoundingClientRect();
-  stickySearch.style.display=rect.top<70?'block':'none';
+  stickySearch.style.display=rect.top<hh+10?'block':'none';
 },{ passive:true });
 
 function syncSearch(src){

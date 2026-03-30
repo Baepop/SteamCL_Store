@@ -116,7 +116,10 @@ header{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-
 .gift-daily-label{font-family:'Rajdhani',sans-serif;font-size:0.7rem;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase;margin-bottom:4px;}
 .gift-daily-name{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1.05rem;color:var(--neon);margin-bottom:4px;}
 .gift-daily-note{font-size:0.78rem;color:var(--text-dim);}
-.gift-tag{display:inline-block;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--neon);font-family:'Rajdhani',sans-serif;font-size:0.72rem;font-weight:700;letter-spacing:2px;padding:3px 10px;border-radius:20px;margin-bottom:8px;text-transform:uppercase;}
+.gift-tag{display:inline-block;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--neon);font-family:'Rajdhani',sans-serif;font-size:0.72rem;font-weight:700;letter-spacing:2px;padding:3px 10px;border-radius:20px;margin-bottom:12px;text-transform:uppercase;}
+.gift-opt-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);padding:9px 16px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:0.9rem;letter-spacing:1px;cursor:pointer;transition:all 0.2s;flex:1;text-align:center;min-width:160px;}
+.gift-opt-btn:hover{border-color:var(--neon);color:var(--neon);}
+.gift-opt-btn.active{border-color:var(--neon);color:var(--neon);background:rgba(0,212,255,0.08);}
 
 /* STICKY SEARCH */
 .sticky-search-bar{position:sticky;top:70px;z-index:40;background:rgba(6,10,16,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:10px 20px;display:none;transition:all 0.3s;}
@@ -390,13 +393,35 @@ header{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-
 <div class="gift-section" id="giftSection">
   <div class="section-title">Tu juego de regalo 🎁</div>
   <div class="gift-box">
-    <div class="gift-tag">Regalo del día</div>
-    <div class="gift-daily" id="giftDaily">
-      <div class="gift-daily-img-placeholder">🎮</div>
-      <div class="gift-daily-info">
-        <div class="gift-daily-label">Cargando...</div>
-        <div class="gift-daily-name" id="giftDailyName">—</div>
-        <div class="gift-daily-note">Este juego se actualiza diariamente de forma automática.</div>
+    <div class="gift-tag">Regalo incluido en tu pack</div>
+    <!-- Opciones para el cliente -->
+    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+      <div class="gift-opt-btn active" id="giftOptDaily" onclick="selectGiftOpt('daily')">
+        🎁 Ver el regalo del día
+      </div>
+      <div class="gift-opt-btn" id="giftOptStore" onclick="selectGiftOpt('store')">
+        🎲 A elección de la tienda
+      </div>
+    </div>
+    <!-- Panel regalo del día -->
+    <div id="giftPanelDaily">
+      <div class="gift-daily" id="giftDaily">
+        <div class="gift-daily-img-placeholder">🎮</div>
+        <div class="gift-daily-info">
+          <div class="gift-daily-label">Cargando...</div>
+          <div class="gift-daily-name" id="giftDailyName">—</div>
+          <div class="gift-daily-note" style="font-size:0.78rem;color:var(--text-dim)">Este juego cambia automáticamente cada día.</div>
+        </div>
+      </div>
+    </div>
+    <!-- Panel a elección de la tienda -->
+    <div id="giftPanelStore" style="display:none">
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;align-items:center;gap:12px;">
+        <div style="font-size:2rem;">🎲</div>
+        <div>
+          <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:0.95rem;color:var(--text);margin-bottom:4px;">SteamCL_Store elige por ti</div>
+          <div style="font-size:0.82rem;color:var(--text-dim);line-height:1.5;">Nos contactaremos por Instagram para coordinarlo al momento de la entrega.</div>
+        </div>
       </div>
     </div>
   </div>
@@ -506,16 +531,6 @@ header{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-
   </div>
 </div>
 
-<!-- GIFT ADMIN MODAL -->
-<div class="modal-overlay" id="giftAdminOverlay" onclick="if(event.target===this)this.classList.remove('visible')">
-  <div class="modal" style="max-width:420px">
-    <h2 style="font-family:'Orbitron',monospace;font-size:1.1rem;color:var(--text);margin-bottom:6px;">⚙️ Cambiar regalo del día</h2>
-    <p style="font-size:0.83rem;color:var(--text-dim);margin-bottom:16px;line-height:1.5">Elige el juego que recibirán todos los clientes de hoy como regalo.</p>
-    <div id="giftAdminList" style="max-height:360px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;"></div>
-    <button onclick="document.getElementById('giftAdminOverlay').classList.remove('visible')" style="margin-top:16px;width:100%;padding:10px;background:transparent;border:1px solid var(--border);color:var(--text-dim);border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:0.95rem;font-weight:600;cursor:pointer;letter-spacing:1px;">Cerrar</button>
-  </div>
-</div>
-
 <script>
 const INSTAGRAM_USER = 'steamcl_store';
 const SHEET_ID = '1pSrjAXJoX6rJR-sazsBGWCqAPb3sOI75Z7hAEeRrLRM';
@@ -582,37 +597,26 @@ function renderDailyGift(){
 function renderGiftDisplay(){
   if(!dailyGift) return;
   const area=document.getElementById('giftDaily');
+  if(!area) return;
   area.innerHTML=`
     ${dailyGift.image
       ?`<img class="gift-daily-img" src="${dailyGift.image}" alt="${dailyGift.name}" onerror="this.style.display='none'">`
       :`<div class="gift-daily-img-placeholder">🎮</div>`}
     <div class="gift-daily-info">
       <div class="gift-daily-label">🎁 Regalo de hoy</div>
-      <div class="gift-daily-name" id="giftDailyName2">${dailyGift.name}</div>
+      <div class="gift-daily-name">${dailyGift.name}</div>
       <div class="gift-daily-note" style="color:var(--text-dim);font-size:0.78rem">Se actualiza automáticamente cada día.</div>
-      <button onclick="openGiftAdmin()" style="margin-top:8px;background:transparent;border:1px solid var(--border);color:var(--text-dim);padding:4px 10px;border-radius:6px;font-family:'Rajdhani',sans-serif;font-size:0.75rem;letter-spacing:1px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--neon)';this.style.color='var(--neon)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-dim)'">⚙️ Admin: cambiar regalo</button>
     </div>`;
 }
-function openGiftAdmin(){
-  document.getElementById('giftAdminOverlay').classList.add('visible');
-  const pool=allGames.filter(g=>g.availType==='ok');
-  const list=document.getElementById('giftAdminList');
-  list.innerHTML=pool.map(g=>`
-    <div onclick="setAdminGift('${g.name.replace(/'/g,"\\'")}','${(g.image||'').replace(/'/g,"\\'")}',this)"
-      style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;cursor:pointer;transition:all 0.15s;border:1px solid ${dailyGift&&dailyGift.name===g.name?'var(--neon)':'transparent'};background:${dailyGift&&dailyGift.name===g.name?'rgba(0,212,255,0.08)':'transparent'};"
-      onmouseover="this.style.background='rgba(0,212,255,0.05)'" onmouseout="this.style.background='${dailyGift&&dailyGift.name===g.name?'rgba(0,212,255,0.08)':'transparent'}'">
-      ${g.image?`<img src="${g.image}" style="width:32px;height:48px;object-fit:cover;border-radius:4px;" onerror="this.style.display='none'">`:'<div style="width:32px;height:48px;background:var(--surface2);border-radius:4px;display:flex;align-items:center;justify-content:center">🎮</div>'}
-      <span style="font-family:'Rajdhani',sans-serif;font-size:0.92rem;font-weight:600;color:var(--text)">${g.name}</span>
-      ${dailyGift&&dailyGift.name===g.name?'<span style="margin-left:auto;color:var(--neon);font-size:0.75rem">✓ Actual</span>':''}
-    </div>`).join('');
-}
-function setAdminGift(name,image,el){
-  dailyGift={name,image,availType:'ok'};
-  renderGiftDisplay();
-  document.getElementById('giftAdminOverlay').classList.remove('visible');
-  showToast(`🎁 Regalo cambiado a: ${name}`);
-}
 
+let giftChoice='daily'; // 'daily' o 'store'
+function selectGiftOpt(opt){
+  giftChoice=opt;
+  document.getElementById('giftOptDaily').classList.toggle('active',opt==='daily');
+  document.getElementById('giftOptStore').classList.toggle('active',opt==='store');
+  document.getElementById('giftPanelDaily').style.display=opt==='daily'?'block':'none';
+  document.getElementById('giftPanelStore').style.display=opt==='store'?'block':'none';
+}
 // ── LOAD ──
 async function loadGames(){
   document.getElementById('gamesGrid').innerHTML=`<div class="loading-state">Cargando catálogo<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>`;
@@ -837,8 +841,9 @@ function openModal(){
     html+=`<div class="modal-section-label" style="margin-top:12px">🔮 Juegos con cupo</div>`;
     html+=cupoGames.map(g=>`<div class="modal-item"><span class="modal-item-cupo">${g.name}</span><span style="color:var(--cupo);font-size:0.78rem">$${CUPO_PRICE.toLocaleString('es-CL')}</span></div>`).join('');
   }
-  html+=`<div class="modal-section-label" style="margin-top:12px">🎁 Regalo del día</div>`;
-  html+=`<div class="modal-item"><span style="color:var(--neon)">${dailyGift?dailyGift.name:'Se asignará al entregar'}</span></div>`;
+  const giftDisplay=giftChoice==='store'?'A elección de SteamCL_Store':(dailyGift?dailyGift.name:'A confirmar');
+  html+=`<div class="modal-section-label" style="margin-top:12px">🎁 Regalo</div>`;
+  html+=`<div class="modal-item"><span style="color:var(--neon)">${giftDisplay}</span></div>`;
   html+=`<div class="modal-total"><span>Total</span><span>$${total.toLocaleString('es-CL')}</span></div>`;
   document.getElementById('modalList').innerHTML=html;
   document.getElementById('modalOverlay').classList.add('visible');
@@ -859,7 +864,8 @@ function sendOrder(){
   let msg=`Hola! Quiero hacer un pedido 🎮\n`;
   if(packGames.length>0){msg+=`\n📦 Pack ${currentPack} juegos — $${currentPrice.toLocaleString('es-CL')}\n`;msg+=packGames.map(g=>`• ${g.name}`).join('\n');}
   if(cupoGames.length>0){msg+=`\n\n🔮 Juegos con cupo — $${CUPO_PRICE.toLocaleString('es-CL')} c/u\n`;msg+=cupoGames.map(g=>`• ${g.name}`).join('\n');}
-  msg+=`\n\n🎁 Regalo del día: ${dailyGift?dailyGift.name:'A confirmar'}`;
+  const giftMsg=giftChoice==='store'?'A elección de SteamCL_Store':(dailyGift?dailyGift.name:'A confirmar');
+  msg+=`\n\n🎁 Regalo: ${giftMsg}`;
   msg+=`\n\n💰 Total: $${total.toLocaleString('es-CL')}`;
   msg+=`\n👤 ${name||'Sin nombre'}`;
   navigator.clipboard.writeText(msg).then(()=>{

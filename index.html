@@ -132,9 +132,21 @@ header{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-
 .search-input{flex:1;min-width:180px;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:9px 16px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:0.95rem;outline:none;transition:border-color 0.2s;letter-spacing:1px;}
 .search-input:focus{border-color:var(--neon);}
 .search-input::placeholder{color:var(--text-dim);}
-.filter-bar{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px;}
-.filter-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);padding:5px 14px;border-radius:20px;font-family:'Rajdhani',sans-serif;font-size:0.85rem;font-weight:600;letter-spacing:1px;cursor:pointer;transition:all 0.2s;}
-.filter-btn:hover,.filter-btn.active{border-color:var(--neon);color:var(--neon);background:rgba(0,212,255,0.08);}
+/* GENRE DROPDOWN */
+.genre-dropdown{position:relative;margin-bottom:18px;}
+.genre-dropdown-btn{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:9px 16px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:0.95rem;font-weight:600;letter-spacing:1px;cursor:pointer;transition:all 0.2s;width:100%;}
+.genre-dropdown-btn:hover,.genre-dropdown-btn.open{border-color:var(--neon);color:var(--neon);}
+.genre-dropdown-btn .arrow{transition:transform 0.2s;font-size:0.75rem;}
+.genre-dropdown-btn.open .arrow{transform:rotate(180deg);}
+.genre-dropdown-menu{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--surface);border:1px solid var(--neon);border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 20px rgba(0,212,255,0.1);z-index:60;max-height:260px;overflow-y:auto;display:none;}
+.genre-dropdown-menu.open{display:block;}
+.genre-option{padding:10px 16px;font-family:'Rajdhani',sans-serif;font-size:0.92rem;font-weight:600;color:var(--text-dim);cursor:pointer;transition:all 0.15s;letter-spacing:1px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.genre-option:last-child{border-bottom:none;}
+.genre-option:hover{background:rgba(0,212,255,0.08);color:var(--text);}
+.genre-option.active{color:var(--neon);background:rgba(0,212,255,0.07);}
+.genre-option .genre-count{font-size:0.72rem;color:var(--text-dim);font-family:'Orbitron',monospace;}
+.filter-bar{display:none;}
+.filter-btn{display:none;}
 .selection-bar{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;font-family:'Rajdhani',sans-serif;}
 .sel-text{font-size:0.9rem;color:var(--text-dim);}
 .sel-count{font-size:1.05rem;font-weight:700;color:var(--neon);}
@@ -193,6 +205,8 @@ header{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-
 .order-btn:hover:not(:disabled){background:#fff;box-shadow:0 0 30px rgba(0,212,255,0.4);transform:scale(1.03);}
 .order-btn:disabled{background:var(--border);color:var(--text-dim);cursor:not-allowed;transform:none;box-shadow:none;}
 .order-btn.pulse{animation:pulse 1.5s infinite;}
+.clear-cart-btn{background:transparent;border:1px solid var(--border);color:var(--text-dim);padding:10px 14px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:0.85rem;letter-spacing:1px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:6px;white-space:nowrap;}
+.clear-cart-btn:hover{border-color:var(--accent);color:var(--accent);}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,212,255,0.5);}50%{box-shadow:0 0 0 10px rgba(0,212,255,0);}}
 
 /* MODAL */
@@ -268,7 +282,7 @@ header{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-
 <div class="sticky-search-bar" id="stickySearch">
   <div class="sticky-search-inner">
     <input type="text" class="sticky-search-input" placeholder="🔍  Buscar juego..." id="stickySearchInput" oninput="syncSearch(this)">
-    <div style="display:flex;gap:6px;flex-wrap:wrap;" id="stickyFilterBar"></div>
+    <span id="stickyGenreLabel" style="font-family:'Rajdhani',sans-serif;font-size:0.82rem;color:var(--neon);letter-spacing:1px;white-space:nowrap;"></span>
   </div>
 </div>
 
@@ -406,7 +420,14 @@ header{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-
     <div class="controls">
       <input type="text" class="search-input" placeholder="🔍  Buscar juego..." id="searchInput" oninput="syncSearch(this)">
     </div>
-    <div class="filter-bar" id="filterBar"></div>
+    <div class="genre-dropdown" id="genreDropdown">
+      <button class="genre-dropdown-btn" id="genreDropdownBtn" onclick="toggleGenreDropdown()">
+        <span id="genreDropdownLabel">🎯 Todos los géneros</span>
+        <span class="arrow">▼</span>
+      </button>
+      <div class="genre-dropdown-menu" id="genreDropdownMenu"></div>
+    </div>
+    <div class="filter-bar" id="filterBar" style="display:none"></div>
     <div class="games-grid" id="gamesGrid">
       <div class="loading-state">Cargando catálogo<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>
     </div>
@@ -447,6 +468,10 @@ header{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-
     <div class="cart-bar-price" id="cartBarPrice">$0</div>
     <div class="cart-bar-slots" id="cartBarSlots"></div>
   </div>
+  <button class="clear-cart-btn" onclick="clearCart()" title="Limpiar carrito">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+    Limpiar
+  </button>
   <button class="order-btn" id="orderBtn" onclick="openModal()" disabled>Pedir por Instagram →</button>
 </div>
 
@@ -478,6 +503,16 @@ header{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-
       <button class="share-btn" onclick="shareWhatsApp()">💬 Compartir por WhatsApp</button>
       <button class="share-btn" onclick="closeShareModal()">Cerrar</button>
     </div>
+  </div>
+</div>
+
+<!-- GIFT ADMIN MODAL -->
+<div class="modal-overlay" id="giftAdminOverlay" onclick="if(event.target===this)this.classList.remove('visible')">
+  <div class="modal" style="max-width:420px">
+    <h2 style="font-family:'Orbitron',monospace;font-size:1.1rem;color:var(--text);margin-bottom:6px;">⚙️ Cambiar regalo del día</h2>
+    <p style="font-size:0.83rem;color:var(--text-dim);margin-bottom:16px;line-height:1.5">Elige el juego que recibirán todos los clientes de hoy como regalo.</p>
+    <div id="giftAdminList" style="max-height:360px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;"></div>
+    <button onclick="document.getElementById('giftAdminOverlay').classList.remove('visible')" style="margin-top:16px;width:100%;padding:10px;background:transparent;border:1px solid var(--border);color:var(--text-dim);border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:0.95rem;font-weight:600;cursor:pointer;letter-spacing:1px;">Cerrar</button>
   </div>
 </div>
 
@@ -542,6 +577,10 @@ function renderDailyGift(){
   const pool=allGames.filter(g=>g.availType==='ok');
   dailyGift=computeDailyGift(pool);
   if(!dailyGift) return;
+  renderGiftDisplay();
+}
+function renderGiftDisplay(){
+  if(!dailyGift) return;
   const area=document.getElementById('giftDaily');
   area.innerHTML=`
     ${dailyGift.image
@@ -549,9 +588,29 @@ function renderDailyGift(){
       :`<div class="gift-daily-img-placeholder">🎮</div>`}
     <div class="gift-daily-info">
       <div class="gift-daily-label">🎁 Regalo de hoy</div>
-      <div class="gift-daily-name">${dailyGift.name}</div>
-      <div class="gift-daily-note" style="color:var(--text-dim);font-size:0.78rem">Se actualiza automáticamente cada día. Todos los clientes de hoy reciben este juego.</div>
+      <div class="gift-daily-name" id="giftDailyName2">${dailyGift.name}</div>
+      <div class="gift-daily-note" style="color:var(--text-dim);font-size:0.78rem">Se actualiza automáticamente cada día.</div>
+      <button onclick="openGiftAdmin()" style="margin-top:8px;background:transparent;border:1px solid var(--border);color:var(--text-dim);padding:4px 10px;border-radius:6px;font-family:'Rajdhani',sans-serif;font-size:0.75rem;letter-spacing:1px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--neon)';this.style.color='var(--neon)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-dim)'">⚙️ Admin: cambiar regalo</button>
     </div>`;
+}
+function openGiftAdmin(){
+  document.getElementById('giftAdminOverlay').classList.add('visible');
+  const pool=allGames.filter(g=>g.availType==='ok');
+  const list=document.getElementById('giftAdminList');
+  list.innerHTML=pool.map(g=>`
+    <div onclick="setAdminGift('${g.name.replace(/'/g,"\\'")}','${(g.image||'').replace(/'/g,"\\'")}',this)"
+      style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;cursor:pointer;transition:all 0.15s;border:1px solid ${dailyGift&&dailyGift.name===g.name?'var(--neon)':'transparent'};background:${dailyGift&&dailyGift.name===g.name?'rgba(0,212,255,0.08)':'transparent'};"
+      onmouseover="this.style.background='rgba(0,212,255,0.05)'" onmouseout="this.style.background='${dailyGift&&dailyGift.name===g.name?'rgba(0,212,255,0.08)':'transparent'}'">
+      ${g.image?`<img src="${g.image}" style="width:32px;height:48px;object-fit:cover;border-radius:4px;" onerror="this.style.display='none'">`:'<div style="width:32px;height:48px;background:var(--surface2);border-radius:4px;display:flex;align-items:center;justify-content:center">🎮</div>'}
+      <span style="font-family:'Rajdhani',sans-serif;font-size:0.92rem;font-weight:600;color:var(--text)">${g.name}</span>
+      ${dailyGift&&dailyGift.name===g.name?'<span style="margin-left:auto;color:var(--neon);font-size:0.75rem">✓ Actual</span>':''}
+    </div>`).join('');
+}
+function setAdminGift(name,image,el){
+  dailyGift={name,image,availType:'ok'};
+  renderGiftDisplay();
+  document.getElementById('giftAdminOverlay').classList.remove('visible');
+  showToast(`🎁 Regalo cambiado a: ${name}`);
 }
 
 // ── LOAD ──
@@ -788,6 +847,12 @@ function closeModal(){document.getElementById('modalOverlay').classList.remove('
 function closeOutside(e){if(e.target===document.getElementById('modalOverlay'))closeModal();}
 
 // Send
+function clearCart(){
+  packGames=[];cupoGames=[];
+  updateSelBar();renderGames(filtered());updateCart();updateStepper();
+  showToast('🗑️ Carrito limpiado');
+}
+
 function sendOrder(){
   const name=document.getElementById('customerName').value.trim();
   const total=currentPrice+(cupoGames.length*CUPO_PRICE);

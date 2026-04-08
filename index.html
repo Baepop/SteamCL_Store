@@ -715,8 +715,8 @@ function getAvailType(avail){
 }
 
 // ── DAILY GIFT (basado en fecha, sin re-roll) ──
-// Generador pseudo-aleatorio (Mulberry32) con semilla basada en la fecha
-// Produce un orden distinto cada día, no simplemente idx % length
+// Algoritmo estable: ordena por ID numérico antes del shuffle.
+// Agregar juegos nuevos con IDs nuevos al final NO altera los días ya calculados.
 function seededRandom(seed){
   return function(){
     seed|=0; seed=seed+0x6D2B79F5|0;
@@ -730,8 +730,14 @@ function computeDailyGift(pool){
   const today=new Date();
   const seed=today.getFullYear()*10000+(today.getMonth()+1)*100+today.getDate();
   const rand=seededRandom(seed);
-  // Shuffle el pool con la semilla y tomar el primero
-  const shuffled=[...pool].sort(()=>rand()-0.5);
+  // Orden por ID numérico (estable ante inserciones nuevas al final)
+  // Si no hay ID, fallback a orden alfabético
+  const sorted=[...pool].sort((a,b)=>{
+    const ia=Number(a.id)||0, ib=Number(b.id)||0;
+    if(ia&&ib) return ia-ib;
+    return a.name.localeCompare(b.name);
+  });
+  const shuffled=sorted.sort(()=>rand()-0.5);
   return shuffled[0];
 }
 
@@ -781,7 +787,9 @@ async function loadGames(){
     const genIdx =headers.findIndex(h=>h.includes('genero')||h.includes('género')||h.includes('genre')||h.includes('categ'));
     const featIdx=headers.findIndex(h=>h.includes('destac')||h.includes('featured'));
 
-    allGames=rows.slice(1).filter(r=>r[nameIdx]&&r[nameIdx].trim()).map(r=>({
+    const idIdx=headers.findIndex(h=>h==='id'||h==='#'||h==='num');
+    allGames=rows.slice(1).filter(r=>r[nameIdx]&&r[nameIdx].trim()).map((r,i)=>({
+      id:idIdx>=0&&r[idIdx]?parseInt(r[idIdx])||i+1:i+1,
       name:(r[nameIdx]||'').trim(),
       image:imgIdx>=0&&r[imgIdx]?r[imgIdx].trim():'',
       genre:genIdx>=0&&r[genIdx]?r[genIdx].trim():'General',

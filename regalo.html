@@ -150,7 +150,9 @@ async function loadCatalog() {
     const nameIdx = headers.findIndex(h => h.includes('juego') || h.includes('nombre'));
     const imgIdx  = headers.findIndex(h => h.includes('imagen') || h.includes('image') || h.includes('img'));
 
-    const all = rows.slice(1).filter(r => r[nameIdx]?.trim()).map(r => ({
+    const idIdx = headers.findIndex(h => h==='id'||h==='#'||h==='num');
+    const all = rows.slice(1).filter(r => r[nameIdx]?.trim()).map((r,i) => ({
+      id: idIdx>=0&&r[idIdx] ? parseInt(r[idIdx])||i+1 : i+1,
       name: r[nameIdx].trim(),
       image: imgIdx >= 0 && r[imgIdx] ? r[imgIdx].trim() : '',
       availType: getAvailType(dispIdx >= 0 && r[dispIdx] ? r[dispIdx].trim() : 'DISPONIBLE')
@@ -171,7 +173,7 @@ function getAvailType(avail) {
   return 'ok';
 }
 
-// Mismo algoritmo que la página principal (Mulberry32)
+// Mismo algoritmo que la página principal — orden por ID numérico
 function seededRandom(seed){
   return function(){
     seed|=0; seed=seed+0x6D2B79F5|0;
@@ -180,12 +182,17 @@ function seededRandom(seed){
     return ((t^t>>>14)>>>0)/4294967296;
   };
 }
-function computeGift(dateStr) {
-  if (!pool.length) return null;
-  const [y, m, d] = dateStr.split('-').map(Number);
-  const seed = y * 10000 + m * 100 + d;
-  const rand = seededRandom(seed);
-  const shuffled = [...pool].sort(() => rand() - 0.5);
+function computeGift(dateStr){
+  if(!pool.length) return null;
+  const [y,m,d]=dateStr.split('-').map(Number);
+  const seed=y*10000+m*100+d;
+  const rand=seededRandom(seed);
+  const sorted=[...pool].sort((a,b)=>{
+    const ia=Number(a.id)||0, ib=Number(b.id)||0;
+    if(ia&&ib) return ia-ib;
+    return a.name.localeCompare(b.name);
+  });
+  const shuffled=sorted.sort(()=>rand()-0.5);
   return shuffled[0];
 }
 
